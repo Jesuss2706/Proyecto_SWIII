@@ -7,7 +7,7 @@ async function start() {
     await sequelize.authenticate();
     console.log('Conexión a la base de datos establecida');
 
-    // sync solo para desarrollo; en produccion usar migraciones
+    // sync solo para desarrollo; en producción usar migraciones
     await sequelize.sync();
 
     app.listen(env.port, () => {

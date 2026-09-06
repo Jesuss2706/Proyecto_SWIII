@@ -20,8 +20,8 @@ app.use(morgan('dev'));
 // Rutas públicas
 app.use('/api/auth', auth.routes);
 
-// Rutas protegidas: todo lo que este detras de authMiddleware
-// requiere un JWT valido, reemplazando lo que antes hacia el api-gateway.
+// Rutas protegidas: todo lo que esté detrás de authMiddleware
+// requiere un JWT válido, reemplazando lo que antes hacía el api-gateway.
 app.use('/api/people', authMiddleware, people.routes);
 app.use('/api/appointments', authMiddleware, appointment.routes);
 

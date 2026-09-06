@@ -4,18 +4,32 @@ const sequelize = require('../../config/db');
 const Patient = sequelize.define(
   'Patient',
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+    codPatient: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
-    userId: {
-      type: DataTypes.UUID,
+    idPatient: {
+      type: DataTypes.BIGINT,
       allowNull: false,
       unique: true,
     },
-    fullName: DataTypes.STRING,
-    email: DataTypes.STRING,
+    namePatient: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    secondNamePatient: DataTypes.STRING,
+    lastNamePatient: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    secondLastNamePatient: DataTypes.STRING,
+    phonePatient: DataTypes.BIGINT,
+    dateBirthPatient: DataTypes.DATEONLY,
+    genderPatient: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     tableName: 'patients',

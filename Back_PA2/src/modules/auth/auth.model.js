@@ -1,33 +1,53 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
 
+// Roles y estados replicados de RoleUserEnum / StatusUserEnum del auth-service original
+const ROLES = ['Professional', 'Admin', 'Patient', 'Scheduler'];
+const STATUSES = ['Active', 'Inactive'];
+
 const User = sequelize.define(
   'User',
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+    codUser: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
-    email: {
-      type: DataTypes.STRING,
+    cedUser: {
+      type: DataTypes.BIGINT,
       allowNull: false,
       unique: true,
-      validate: { isEmail: true },
     },
-    password: {
+    passUser: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role: {
-      type: DataTypes.ENUM('ADMIN', 'PROFESSIONAL', 'PATIENT'),
+    nameUser: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'PATIENT',
     },
-    status: {
-      type: DataTypes.ENUM('ACTIVE', 'INACTIVE'),
+    secondNameUser: DataTypes.STRING,
+    lastNameUser: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'ACTIVE',
+    },
+    secondLastNameUser: DataTypes.STRING,
+    statusUser: {
+      type: DataTypes.ENUM(...STATUSES),
+      allowNull: false,
+      defaultValue: 'Active',
+    },
+    roleUser: {
+      type: DataTypes.ENUM(...ROLES),
+      allowNull: false,
+    },
+    securityQuestion: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    securityAnswer: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   },
   {
@@ -36,5 +56,8 @@ const User = sequelize.define(
     timestamps: true,
   }
 );
+
+User.ROLES = ROLES;
+User.STATUSES = STATUSES;
 
 module.exports = User;

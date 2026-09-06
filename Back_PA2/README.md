@@ -47,9 +47,42 @@ módulo debe hacer `require()` directo de un archivo interno de otro módulo
    curl http://localhost:3000/health
    ```
 
-## Módulos pendientes de migrar
+## Estado de la migración
 
-- `people`: falta migrar `PatientController`/`ProfessionalController` desde
-  `people-service` original (solo está el modelo `Patient` y el listener de ejemplo).
-- `appointment`: falta migrar `AppointmentController` y las estrategias de
-  exportación (json/csv/html) desde `appointment-service` original.
+- `auth`: completo. Login por cédula, registro, roles (`Professional`, `Admin`,
+  `Patient`, `Scheduler`), activar/desactivar. Publica `user.registered` y `user.updated`.
+- `people`: completo. Pacientes y profesionales con las mismas reglas de negocio
+  del `people-service` original (no duplicar identificación/usuario, validar que
+  la hora de llegada sea antes que la de salida, desactivación en vez de borrado
+  para profesionales). `people.listeners.js` mantiene `UserRef` sincronizado
+  escuchando los eventos de `auth`. Publica `patient.registered`, `patient.updated`,
+  `professional.registered` y `professional.updated`.
+- `appointment`: pendiente. Falta migrar `AppointmentController` y las estrategias
+  de exportación (json/csv/html) desde `appointment-service` original, y sus
+  listeners deberán suscribirse a los eventos que ahora publica `people`.
+
+## Endpoints disponibles
+
+**Auth** (`/api/auth`, público)
+- `POST /login` — `{ cedUser, password }`
+- `POST /register` — `{ cedUser, passUser, nameUser, secondNameUser?, lastNameUser, secondLastNameUser?, roleUser, securityQuestion, securityAnswer }`
+- `GET /users?role=Patient`
+- `GET /users/:cedula`
+- `GET /users/cod/:codigo`
+- `PUT /users/:id`
+- `DELETE /users/:id` (desactiva)
+
+**People** (`/api/people`, requiere JWT)
+- `GET /patients`
+- `GET /patients/:idPatient`
+- `GET /patients/codPatient/:codPatient`
+- `POST /patients`
+- `PUT /patients/:id`
+- `DELETE /patients/:id`
+- `GET /professionals`
+- `GET /professionals/user/:codUser`
+- `GET /professionals/speciality/:speciality`
+- `GET /professionals/:codigo`
+- `POST /professionals`
+- `PUT /professionals/:id`
+- `DELETE /professionals/:id` (desactiva)
