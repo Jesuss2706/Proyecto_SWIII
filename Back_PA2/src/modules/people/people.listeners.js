@@ -1,10 +1,6 @@
 const eventBus = require('../../shared/eventBus');
 const UserRef = require('./userRef.model');
-
-function buildFullName(first, second) {
-  if (!second || !second.trim()) return first || '';
-  return `${first} ${second}`.trim();
-}
+const { buildFullName } = require('./people.utils');
 
 // Equivalente a UserEventListener.handleUserRegistered del people-service original
 eventBus.on('user.registered', async (dto) => {

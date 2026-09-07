@@ -57,9 +57,16 @@ módulo debe hacer `require()` directo de un archivo interno de otro módulo
   para profesionales). `people.listeners.js` mantiene `UserRef` sincronizado
   escuchando los eventos de `auth`. Publica `patient.registered`, `patient.updated`,
   `professional.registered` y `professional.updated`.
-- `appointment`: pendiente. Falta migrar `AppointmentController` y las estrategias
-  de exportación (json/csv/html) desde `appointment-service` original, y sus
-  listeners deberán suscribirse a los eventos que ahora publica `people`.
+- `appointment`: completo. Crear/reagendar/cancelar/completar citas con las
+  mismas reglas del `appointment-service` original (un paciente no puede tener
+  dos citas `Scheduled` a la vez, no se puede reagendar una cita cancelada o
+  completada, etc.), generación de horarios disponibles respetando el horario
+  y los días no laborables de cada profesional, búsqueda del primer turno
+  disponible por especialidad (saltando fines de semana y festivos), y
+  exportación a JSON/CSV/HTML con el patrón Strategy. En vez de mantener
+  copias `PatientRef`/`ProfessionalRef` sincronizadas por eventos como en el
+  original, consulta directamente la fachada de `people` — una ventaja real
+  del monolito modular sobre los microservicios.
 
 ## Endpoints disponibles
 
@@ -86,3 +93,21 @@ módulo debe hacer `require()` directo de un archivo interno de otro módulo
 - `POST /professionals`
 - `PUT /professionals/:id`
 - `DELETE /professionals/:id` (desactiva)
+
+**Appointments** (`/api/appointments`, requiere JWT)
+- `GET /` — todas las citas
+- `GET /generated?codProf=&date=&speciality=` — horarios disponibles
+- `GET /generated/speciality/:speciality` — horarios disponibles hoy para una especialidad
+- `GET /first-available/:speciality` — primer turno libre en los próximos 60 días
+- `GET /:id`
+- `GET /professional/:codProf`
+- `GET /professional/:codProf/date/:date`
+- `GET /professional/speciality/:specialityProf`
+- `GET /patient/:codPatient`
+- `GET /status/:status`
+- `GET /date/:date`
+- `POST /` — crear cita
+- `POST /export?format=json|csv|html` — body: `[1, 2, 3]` (ids de citas)
+- `PUT /:id` — reagendar / editar descripción / cambiar estado
+- `PUT /:id/status` — body `{ "statusApp": "ATENDIDA" | "CANCELADA" | "AGENDADA" }`
+- `DELETE /:id` — cancela (no borra)

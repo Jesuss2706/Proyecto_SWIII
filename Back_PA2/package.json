@@ -1,7 +1,7 @@
 {
   "name": "back_pa2",
   "version": "1.0.0",
-  "description": "Monolito modular en Express.js - Proyecto Final Ing. Software III",
+  "description": "Monolito modular en Express.js - Proyecto Final Ing. Software II",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
