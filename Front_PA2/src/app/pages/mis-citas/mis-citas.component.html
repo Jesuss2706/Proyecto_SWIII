@@ -1,0 +1,54 @@
+<app-hero variant="compact" eyebrow="Pacientes" subtitle="Consulta, reagenda o cancela tus citas.">
+  Mis citas
+</app-hero>
+
+<section class="pa-section pt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-9">
+
+        @if (error()) {
+          <div class="alert alert-info" role="status">{{ error() }}</div>
+        }
+
+        @if (loading()) {
+          <div class="text-center py-5">
+            <span class="spinner-border" aria-hidden="true"></span>
+          </div>
+        } @else if (rows().length) {
+          <ul class="list-unstyled mb-0">
+            @for (a of rows(); track a.codApp) {
+              <li class="pa-card p-3 p-lg-4 mb-3">
+                <div class="row align-items-center g-3">
+                  <div class="col-12 col-md-3">
+                    <p class="pa-appt-date mb-0">{{ prettyDate(a.dateApp) }}</p>
+                    <p class="pa-appt-time mb-0">{{ time(a.timeApp) }}</p>
+                  </div>
+                  <div class="col-12 col-md-5">
+                    <p class="pa-muted small mb-1">Cita #{{ a.codApp }}</p>
+                    <p class="mb-0 small">{{ a.descApp || 'Sin observaciones' }}</p>
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <span class="pa-muted small">{{ statusLabel(a.statusApp) }}</span>
+                  </div>
+                  <div class="col-6 col-md-2 text-end">
+                    @if (a.statusApp === 'Scheduled') {
+                      <button class="btn btn-sm btn-pa-outline" type="button" (click)="cancel(a)">Cancelar</button>
+                    }
+                  </div>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else if (!error()) {
+          <div class="pa-card p-5 text-center">
+            <p class="fw-semibold mb-1">Todavía no tienes citas</p>
+            <p class="pa-muted small mb-3">Reserva la primera y aparecerá aquí.</p>
+            <a class="btn btn-pa" routerLink="/agendar">Agendar una cita</a>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+</section>

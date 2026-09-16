@@ -1,24 +1,27 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { App } from './app';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
+      providers: [provideRouter(routes), provideHttpClient()],
+    }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('crea el shell de la aplicación', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('monta la barra de navegación y el pie de página', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, Front_PA2');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('app-navbar')).toBeTruthy();
+    expect(el.querySelector('app-footer')).toBeTruthy();
   });
 });

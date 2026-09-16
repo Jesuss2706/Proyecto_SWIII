@@ -1,0 +1,112 @@
+/* ---------- Indicador de pasos ---------- */
+.pa-steps { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .25rem; }
+
+.pa-step {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  white-space: nowrap;
+  color: var(--pa-muted);
+  font-size: .82rem;
+}
+
+.pa-step-num {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--pa-line);
+  background: var(--pa-surface);
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.pa-step.is-active { color: var(--pa-navy-900); font-weight: 600; }
+.pa-step.is-active .pa-step-num {
+  background: var(--pa-navy-900);
+  border-color: var(--pa-navy-900);
+  color: #fff;
+}
+.pa-step.is-done .pa-step-num {
+  background: var(--pa-gold-100);
+  border-color: var(--pa-gold);
+  color: var(--pa-gold-600);
+}
+
+.pa-step-line { flex: 1 1 auto; min-width: 1.5rem; height: 1px; background: var(--pa-line); }
+
+/* En pantallas pequeñas solo queda el número, el texto ocuparía demasiado */
+@media (max-width: 575.98px) {
+  .pa-step-text { display: none; }
+  .pa-step.is-active .pa-step-text { display: inline; }
+}
+
+/* ---------- Formulario ---------- */
+.pa-step-title { font-size: clamp(1.25rem, 2.6vw, 1.6rem); }
+
+.pa-fieldset-label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--pa-muted);
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--pa-line);
+  margin-bottom: 1.25rem;
+}
+
+.pa-optional { font-weight: 400; color: var(--pa-muted); }
+.pa-privacy { font-size: .78rem; color: var(--pa-muted); }
+
+/* ---------- Franjas horarias ---------- */
+.pa-prof-block { border-top: 1px solid var(--pa-line); padding-top: 1rem; }
+.pa-prof-block:first-of-type { border-top: 0; padding-top: 0; }
+
+.pa-prof-name { font-size: .95rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-prof-spec { font-size: .78rem; color: var(--pa-gold-600); }
+
+.pa-slot {
+  border: 1px solid var(--pa-line);
+  background: var(--pa-surface);
+  color: var(--pa-navy-900);
+  border-radius: .5rem;
+  padding: .45rem .8rem;
+  font-size: .85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 5.5rem;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.pa-slot:hover { border-color: var(--pa-navy-500); }
+.pa-slot.is-selected {
+  background: var(--pa-navy-900);
+  border-color: var(--pa-navy-900);
+  color: #fff;
+}
+
+.pa-selection { font-size: .85rem; color: var(--pa-muted); }
+
+/* ---------- Confirmación ---------- */
+.pa-success-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--pa-gold-100);
+  color: var(--pa-gold-600);
+  font-size: 1.5rem;
+}
+
+.pa-summary { max-width: 24rem; }
+.pa-summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: .55rem;
+  border-bottom: 1px solid var(--pa-line);
+  font-size: .88rem;
+}
+.pa-summary dt { color: var(--pa-muted); font-weight: 400; }
+.pa-summary dd { margin: 0; font-weight: 600; color: var(--pa-navy-900); text-align: right; }

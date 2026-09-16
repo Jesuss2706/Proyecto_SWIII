@@ -1,0 +1,78 @@
+.pa-section-title { font-size: clamp(1.5rem, 3.4vw, 2.1rem); max-width: 20ch; }
+section.text-center .pa-section-title { margin-inline: auto; }
+
+/* ---------- Servicios ---------- */
+.pa-service-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: .65rem;
+  background: var(--pa-bg);
+  color: var(--pa-gold-600);
+  font-size: 1.05rem;
+}
+
+.pa-service-title { font-size: 1.02rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-service-body { font-size: .89rem; color: var(--pa-muted); margin-bottom: 0; }
+
+.pa-service-link {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--pa-navy-700);
+  text-decoration: none;
+}
+.pa-service-link:hover { color: var(--pa-gold-600); text-decoration: underline; }
+
+/* ---------- Razones ---------- */
+.pa-reason {
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--pa-line);
+}
+.pa-reason:last-child { border-bottom: 1px solid var(--pa-line); }
+
+.pa-reason-title { font-size: .98rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-reason-body { font-size: .88rem; color: var(--pa-muted); max-width: 58ch; }
+
+/* ---------- Equipo ---------- */
+.pa-avatar {
+  aspect-ratio: 3 / 3.4;
+  border-radius: .75rem;
+  background: linear-gradient(180deg, #a9c1d5, #8fadc6);
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .85);
+  font-size: 2.6rem;
+}
+
+.pa-member-name { font-size: .92rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-member-speciality { font-size: .8rem; color: var(--pa-gold-600); }
+.pa-member-note { font-size: .78rem; color: var(--pa-muted); }
+
+/* ---------- CTA ---------- */
+.pa-cta {
+  background: var(--pa-navy-900);
+  border-radius: 1rem;
+  padding: 2rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.pa-cta::after {
+  content: "";
+  position: absolute;
+  inset-block: -40%;
+  right: -10%;
+  width: 45%;
+  background: radial-gradient(circle at 60% 50%, rgba(195, 146, 64, .35), transparent 65%);
+  pointer-events: none;
+}
+@media (min-width: 992px) { .pa-cta { padding: 2.5rem 3rem; } }
+
+.pa-cta-title {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: clamp(1.35rem, 2.8vw, 1.8rem);
+  font-weight: 400;
+  max-width: 18ch;
+}
+.pa-cta-body { font-size: .9rem; color: rgba(255, 255, 255, .72); max-width: 52ch; }

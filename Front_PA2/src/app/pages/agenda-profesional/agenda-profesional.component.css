@@ -1,0 +1,53 @@
+/* ---------- Tarjetas de conteo ---------- */
+.pa-metric {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line);
+  border-radius: var(--bs-border-radius-lg);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  height: 100%;
+}
+
+.pa-metric-value {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.85rem;
+  line-height: 1;
+  color: var(--pa-navy-900);
+}
+
+.pa-metric-label { font-size: .78rem; color: var(--pa-muted); }
+
+/* ---------- Tabla ---------- */
+.pa-table-title { font-size: .98rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-table-sub { font-size: .82rem; color: var(--pa-muted); text-transform: capitalize; }
+
+.pa-table thead th {
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--pa-muted);
+  background: var(--pa-bg);
+  border-bottom-color: var(--pa-line);
+  white-space: nowrap;
+}
+
+.pa-table td { font-size: .9rem; }
+.pa-cell-time { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.pa-cell-desc { max-width: 22rem; }
+
+/* ---------- Estados ---------- */
+.pa-badge {
+  display: inline-block;
+  font-size: .74rem;
+  font-weight: 600;
+  padding: .22rem .6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pa-badge-scheduled   { background: #e4edf5; color: #1e3a52; }
+.pa-badge-completed   { background: #e2efe5; color: #245c36; }
+.pa-badge-cancelled   { background: #f6e3e3; color: #8a2f2f; }
+.pa-badge-rescheduled { background: var(--pa-gold-100); color: var(--pa-gold-600); }

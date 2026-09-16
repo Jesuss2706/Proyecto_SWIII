@@ -1,0 +1,284 @@
+<app-hero
+  variant="compact"
+  eyebrow="Nueva inscripción"
+  subtitle="Tres pasos: verificamos tu documento, confirmamos tus datos y eliges el horario.">
+  Agenda tu cita
+</app-hero>
+
+<section class="pa-section pt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-9 col-xl-8">
+
+        <!-- ============ Indicador de pasos ============ -->
+        <ol class="pa-steps list-unstyled d-flex align-items-center gap-2 gap-sm-3 mb-4">
+          <li class="pa-step" [class.is-active]="step() === 1" [class.is-done]="step() > 1">
+            <span class="pa-step-num">1</span><span class="pa-step-text">Verificación</span>
+          </li>
+          <li class="pa-step-line" aria-hidden="true"></li>
+          <li class="pa-step" [class.is-active]="step() === 2" [class.is-done]="step() > 2">
+            <span class="pa-step-num">2</span><span class="pa-step-text">Datos del paciente</span>
+          </li>
+          <li class="pa-step-line" aria-hidden="true"></li>
+          <li class="pa-step" [class.is-active]="step() === 3">
+            <span class="pa-step-num">3</span><span class="pa-step-text">Confirmación</span>
+          </li>
+        </ol>
+
+        @if (error()) {
+          <div class="alert alert-danger" role="alert">{{ error() }}</div>
+        }
+        @if (notice() && !error()) {
+          <div class="alert alert-info" role="status">{{ notice() }}</div>
+        }
+
+        <!-- ============ Paso 1: verificación ============ -->
+        @if (step() === 1) {
+          <div class="pa-card p-4 p-lg-5">
+            <p class="pa-eyebrow mb-2">Paso 1</p>
+            <h2 class="pa-display pa-step-title mb-2">Empecemos por tu documento</h2>
+            <p class="pa-lead mb-4">
+              Busca primero por número de cédula — si ya tienes historia clínica con nosotros,
+              tus datos se cargan automáticamente.
+            </p>
+
+            <label class="form-label" for="ced">Número de cédula</label>
+            <div class="input-group mb-2">
+              <input id="ced" class="form-control" inputmode="numeric" placeholder="Ej: 1 234 567 890"
+                     [value]="cedula()" (input)="cedula.set($any($event.target).value)"
+                     (keyup.enter)="lookup()">
+              <button class="btn btn-pa-dark" type="button" (click)="lookup()" [disabled]="busy()">
+                @if (busy()) {
+                  <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                } @else {
+                  <i class="bi bi-search me-1"></i>Buscar
+                }
+              </button>
+            </div>
+            <p class="form-text mb-4">Solo números, sin puntos ni espacios.</p>
+
+            <button class="btn btn-link p-0 pa-muted text-decoration-none" type="button" (click)="skipLookup()">
+              Prefiero llenar mis datos manualmente
+            </button>
+          </div>
+        }
+
+        <!-- ============ Paso 2: datos del paciente ============ -->
+        @if (step() === 2) {
+          <form class="pa-card p-4 p-lg-5" [formGroup]="patientForm" (ngSubmit)="savePatient()">
+            <p class="pa-eyebrow mb-2">Paso 2</p>
+            <h2 class="pa-display pa-step-title mb-4">Datos del paciente</h2>
+
+            <p class="pa-fieldset-label">Información personal</p>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-nombre">Primer nombre *</label>
+                <input id="p-nombre" class="form-control" formControlName="namePatient"
+                       [class.is-invalid]="invalid('namePatient')" placeholder="Valeria">
+                <div class="invalid-feedback">Escribe el primer nombre.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-apellido">Primer apellido *</label>
+                <input id="p-apellido" class="form-control" formControlName="lastNamePatient"
+                       [class.is-invalid]="invalid('lastNamePatient')" placeholder="Muñoz">
+                <div class="invalid-feedback">Escribe el primer apellido.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-nombre2">Segundo nombre <span class="pa-optional">(opcional)</span></label>
+                <input id="p-nombre2" class="form-control" formControlName="secondNamePatient">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-apellido2">Segundo apellido <span class="pa-optional">(opcional)</span></label>
+                <input id="p-apellido2" class="form-control" formControlName="secondLastNamePatient">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-cedula">Número de cédula *</label>
+                <input id="p-cedula" class="form-control" inputmode="numeric" formControlName="idPatient"
+                       [class.is-invalid]="invalid('idPatient')">
+                <div class="invalid-feedback">Entre 6 y 12 dígitos, sin puntos.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-genero">Género *</label>
+                <select id="p-genero" class="form-select" formControlName="genderPatient"
+                        [class.is-invalid]="invalid('genderPatient')">
+                  <option value="">Selecciona una opción</option>
+                  <option value="Femenino">Femenino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Otro">Otro</option>
+                  <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                </select>
+                <div class="invalid-feedback">Selecciona una opción.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-cel">Celular *</label>
+                <input id="p-cel" class="form-control" inputmode="tel" formControlName="phonePatient"
+                       [class.is-invalid]="invalid('phonePatient')" placeholder="300 000 0000">
+                <div class="invalid-feedback">Un celular colombiano de 10 dígitos que empiece por 3.</div>
+              </div>
+
+              <div class="col-8 col-md-4">
+                <label class="form-label" for="p-fnac">Fecha de nacimiento *</label>
+                <input id="p-fnac" type="date" class="form-control" formControlName="dateBirthPatient"
+                       [class.is-invalid]="invalid('dateBirthPatient')" [max]="minDate">
+                <div class="invalid-feedback">Indica tu fecha de nacimiento.</div>
+              </div>
+
+              <div class="col-4 col-md-2">
+                <label class="form-label" for="p-edad">Edad</label>
+                <input id="p-edad" class="form-control" [value]="age() ?? '—'" readonly disabled>
+              </div>
+
+              <div class="col-12">
+                <p class="form-text mt-0">La edad se calcula sola a partir de la fecha de nacimiento.</p>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="p-obs">Observación <span class="pa-optional">(opcional)</span></label>
+                <textarea id="p-obs" class="form-control" rows="3" formControlName="descApp"
+                          placeholder="Alergias, condiciones previas o notas relevantes para la atención…"></textarea>
+              </div>
+            </div>
+
+            <hr class="pa-divider my-4">
+
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+              <p class="pa-privacy mb-0">
+                <i class="bi bi-shield-lock me-1"></i>
+                Tus datos están protegidos y solo son visibles para el personal clínico.
+              </p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-pa-outline" type="button" (click)="back()">Volver</button>
+                <button class="btn btn-pa-dark" type="submit" [disabled]="busy()">
+                  @if (busy()) {
+                    <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                  }
+                  Guardar y continuar
+                </button>
+              </div>
+            </div>
+          </form>
+        }
+
+        <!-- ============ Paso 3: horario y confirmación ============ -->
+        @if (step() === 3) {
+
+          @if (confirmed(); as done) {
+            <div class="pa-card p-4 p-lg-5 text-center">
+              <span class="pa-success-mark mb-3"><i class="bi bi-check-lg"></i></span>
+              <h2 class="pa-display pa-step-title mb-2">Tu cita quedó agendada</h2>
+              <p class="pa-lead mx-auto mb-4">
+                Te esperamos el {{ prettyDate(done.slot.dateApp) }} a las {{ time(done.slot.timeApp) }}
+                con {{ done.slot.professionalName }}.
+              </p>
+
+              <dl class="pa-summary mx-auto text-start mb-4">
+                <div><dt>Código de la cita</dt><dd>#{{ done.codApp }}</dd></div>
+                <div><dt>Especialidad</dt><dd>{{ specLabel(done.slot.specialityProf) }}</dd></div>
+                <div><dt>Profesional</dt><dd>{{ done.slot.professionalName }}</dd></div>
+                <div><dt>Sede</dt><dd>Calle 5 # 12-34, Popayán</dd></div>
+              </dl>
+
+              <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                <a class="btn btn-pa-dark" routerLink="/mis-citas">Ver mis citas</a>
+                <button class="btn btn-pa-outline" type="button" (click)="restart()">Agendar otra</button>
+              </div>
+            </div>
+
+          } @else {
+            <div class="pa-card p-4 p-lg-5">
+              <p class="pa-eyebrow mb-2">Paso 3</p>
+              <h2 class="pa-display pa-step-title mb-4">Elige tu horario</h2>
+
+              <div class="row g-3 mb-4">
+                <div class="col-12 col-md-7">
+                  <label class="form-label" for="s-esp">Especialidad</label>
+                  <select id="s-esp" class="form-select"
+                          [value]="speciality()"
+                          (change)="speciality.set($any($event.target).value); loadSlots()">
+                    <option value="">Cualquier especialidad</option>
+                    @for (s of specialities; track s) {
+                      <option [value]="s">{{ specLabel(s) }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-5">
+                  <label class="form-label" for="s-fecha">Fecha</label>
+                  <input id="s-fecha" type="date" class="form-control"
+                         [value]="date()" [min]="minDate" [max]="maxDate"
+                         (change)="date.set($any($event.target).value); loadSlots()">
+                  <p class="form-text mb-0">
+                    Puedes reservar hasta {{ settings.settings().bookingWindowWeeks }} semanas hacia adelante.
+                  </p>
+                </div>
+              </div>
+
+              @if (loadingSlots()) {
+                <div class="text-center py-5">
+                  <span class="spinner-border" aria-hidden="true"></span>
+                  <p class="pa-muted small mt-3 mb-0">Buscando horarios libres…</p>
+                </div>
+              } @else if (slotsByProfessional().length) {
+                @for (g of slotsByProfessional(); track g.name) {
+                  <div class="pa-prof-block mb-4">
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                      <h3 class="pa-prof-name mb-0">{{ g.name }}</h3>
+                      <span class="pa-prof-spec">{{ specLabel(g.speciality) }}</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                      @for (slot of g.slots; track slot.codProf + slot.timeApp) {
+                        <button type="button" class="pa-slot"
+                                [class.is-selected]="selectedSlot() === slot"
+                                [attr.aria-pressed]="selectedSlot() === slot"
+                                (click)="pick(slot)">
+                          {{ time(slot.timeApp) }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              } @else {
+                <div class="text-center py-5">
+                  <p class="fw-semibold mb-1">No hay franjas libres ese día</p>
+                  <p class="pa-muted small mb-0">Prueba con otra fecha o quita el filtro de especialidad.</p>
+                </div>
+              }
+
+              <hr class="pa-divider my-4">
+
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                @if (selectedSlot(); as s) {
+                  <p class="pa-selection mb-0">
+                    Seleccionado: <strong>{{ prettyDate(s.dateApp) }}, {{ time(s.timeApp) }}</strong>
+                    con {{ s.professionalName }}
+                  </p>
+                } @else {
+                  <p class="pa-muted small mb-0">Selecciona una hora para habilitar la confirmación.</p>
+                }
+
+                <div class="d-flex gap-2">
+                  <button class="btn btn-pa-outline" type="button" (click)="back()">Volver</button>
+                  <button class="btn btn-pa" type="button" (click)="confirm()"
+                          [disabled]="!selectedSlot() || busy()">
+                    @if (busy()) {
+                      <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                    }
+                    Confirmar cita
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+      </div>
+    </div>
+  </div>
+</section>

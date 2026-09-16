@@ -1,0 +1,22 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main { flex: 1 0 auto; }
+
+/* Enlace de salto visible solo al navegar con teclado */
+.pa-skip {
+  position: absolute;
+  left: -999px;
+  top: .5rem;
+  z-index: 1080;
+  background: var(--pa-navy-900);
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: .5rem;
+  text-decoration: none;
+  font-size: .85rem;
+}
+.pa-skip:focus { left: .5rem; }

@@ -1,0 +1,37 @@
+.pa-footer {
+  background: var(--pa-surface);
+  border-top: 1px solid var(--pa-line);
+  padding-block: 3.5rem 2rem;
+}
+
+.pa-mark { width: 20px; height: 20px; color: var(--pa-navy-700); }
+
+.pa-footer-brand {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.1rem;
+  color: var(--pa-navy-900);
+}
+
+.pa-footer-text {
+  color: var(--pa-muted);
+  font-size: .9rem;
+  max-width: 34ch;
+}
+
+.pa-footer-title {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--pa-navy-900);
+  margin-bottom: .9rem;
+}
+
+.pa-footer-list { list-style: none; padding: 0; margin: 0; }
+.pa-footer-list li { margin-bottom: .55rem; font-size: .9rem; color: var(--pa-muted); }
+.pa-footer-list a { color: var(--pa-muted); text-decoration: none; }
+.pa-footer-list a:hover { color: var(--pa-navy-900); text-decoration: underline; }
+
+.pa-footer-rule { border-color: var(--pa-line); opacity: 1; margin-block: 1.5rem 1rem; }
+
+.pa-footer-legal { font-size: .78rem; color: var(--pa-muted); }

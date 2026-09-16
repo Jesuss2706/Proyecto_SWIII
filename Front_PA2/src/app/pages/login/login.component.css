@@ -1,0 +1,4 @@
+.pa-auth { padding-block: 4rem; }
+@media (min-width: 992px) { .pa-auth { padding-block: 6rem; } }
+
+.pa-auth-title { font-size: clamp(1.4rem, 3vw, 1.85rem); }

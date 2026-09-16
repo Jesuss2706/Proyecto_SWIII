@@ -1,0 +1,8 @@
+.pa-appt-date {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--pa-navy-900);
+  text-transform: capitalize;
+}
+
+.pa-appt-time { font-size: .85rem; color: var(--pa-gold-600); font-weight: 600; }

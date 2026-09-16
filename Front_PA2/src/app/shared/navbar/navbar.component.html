@@ -1,0 +1,71 @@
+<nav class="navbar navbar-expand-lg pa-navbar sticky-top" aria-label="Navegación principal">
+  <div class="container">
+
+    <a class="navbar-brand d-flex align-items-center gap-2" routerLink="/" (click)="closeMenu()">
+      <svg class="pa-mark" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2 21 7v10l-9 5-9-5V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M12 7.5 16.5 10v4.5L12 17l-4.5-2.5V10z" fill="currentColor" opacity=".9"/>
+      </svg>
+      <span class="pa-brand-text">Piedra Azul</span>
+    </a>
+
+    <button
+      class="navbar-toggler border-0 shadow-none"
+      type="button"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="paNav"
+      aria-label="Abrir menú"
+      (click)="toggleMenu()">
+      <i class="bi" [class.bi-list]="!menuOpen()" [class.bi-x]="menuOpen()"></i>
+    </button>
+
+    <div id="paNav" class="collapse navbar-collapse" [class.show]="menuOpen()">
+      <ul class="navbar-nav mx-lg-auto mb-3 mb-lg-0 gap-lg-1">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" fragment="servicios" (click)="closeMenu()">Servicios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" fragment="por-que" (click)="closeMenu()">Por qué elegirnos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" fragment="equipo" (click)="closeMenu()">Profesionales</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" fragment="contacto" (click)="closeMenu()">Contacto</a>
+        </li>
+
+        @if (auth.hasRole('Scheduler', 'Admin', 'Professional')) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/agenda" routerLinkActive="active" (click)="closeMenu()">Agenda del día</a>
+          </li>
+        }
+        @if (auth.hasRole('Admin')) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/configuracion" routerLinkActive="active" (click)="closeMenu()">Configuración</a>
+          </li>
+        }
+      </ul>
+
+      <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2">
+        @if (auth.isLoggedIn()) {
+          <a class="btn btn-pa btn-sm px-3" routerLink="/agendar" (click)="closeMenu()">Reservar mi cita</a>
+          <div class="dropdown">
+            <button class="btn btn-pa-outline btn-sm dropdown-toggle w-100" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-1"></i>{{ auth.fullName() }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><span class="dropdown-item-text small pa-muted">{{ auth.role() }}</span></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" routerLink="/mis-citas" (click)="closeMenu()">Mis citas</a></li>
+              <li><button class="dropdown-item" type="button" (click)="logout()">Cerrar sesión</button></li>
+            </ul>
+          </div>
+        } @else {
+          <a class="btn btn-pa-dark btn-sm px-3" routerLink="/ingresar" (click)="closeMenu()">Iniciar sesión</a>
+          <a class="pa-register-link text-center" routerLink="/registro" (click)="closeMenu()">Registrarse</a>
+        }
+      </div>
+    </div>
+  </div>
+</nav>
