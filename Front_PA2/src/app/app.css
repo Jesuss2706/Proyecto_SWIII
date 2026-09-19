@@ -20,3 +20,13 @@ main { flex: 1 0 auto; }
   font-size: .85rem;
 }
 .pa-skip:focus { left: .5rem; }
+
+/* Alerta de bienvenida al iniciar sesión */
+.pa-welcome {
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1090;
+  width: min(92vw, 420px);
+}

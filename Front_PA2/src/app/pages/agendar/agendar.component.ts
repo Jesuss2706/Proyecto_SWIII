@@ -56,7 +56,7 @@ export class AgendarComponent {
   protected readonly age = signal<number | null>(null);
 
   // ---------- Paso 3: horario ----------
-  protected readonly specialities: Speciality[] = ['Neural_Therapy', 'Chiropractor', 'Physiotherapy'];
+   protected readonly specialities: Speciality[] = ['General', 'Neural_Therapy', 'Chiropractor', 'Physiotherapy'];
   protected readonly speciality = signal<Speciality | ''>('');
   protected readonly date = signal<string>(todayISO());
   protected readonly slots = signal<Slot[]>([]);

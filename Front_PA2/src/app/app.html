@@ -1,6 +1,12 @@
 <a class="pa-skip" href="#contenido">Saltar al contenido</a>
 
 <app-navbar />
+@if (auth.welcomeMessage(); as msg) {
+  <div class="pa-welcome alert alert-success alert-dismissible shadow mb-0" role="status">
+    <i class="bi bi-check-circle-fill me-2"></i>{{ msg }}
+    <button type="button" class="btn-close" aria-label="Cerrar" (click)="auth.welcomeMessage.set(null)"></button>
+  </div>
+}
 
 <main id="contenido">
   <router-outlet />

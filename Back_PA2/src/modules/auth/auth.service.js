@@ -62,12 +62,22 @@ async function login({ cedUser, password }) {
     { expiresIn: env.jwt.expiresIn }
   );
 
-  return {
+    return {
     token,
     role: user.roleUser,
     codUser: user.codUser,
     cedUser: Number(user.cedUser),
     nameUser: user.nameUser,
+    user: {
+      codUser: user.codUser,
+      cedUser: Number(user.cedUser),
+      nameUser: user.nameUser,
+      secondNameUser: user.secondNameUser,
+      lastNameUser: user.lastNameUser,
+      secondLastNameUser: user.secondLastNameUser,
+      statusUser: user.statusUser,
+      roleUser: user.roleUser,
+    },
   };
 }
 

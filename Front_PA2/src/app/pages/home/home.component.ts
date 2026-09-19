@@ -28,6 +28,13 @@ interface TeamMember {
 export class HomeComponent {
   private people = inject(PeopleService);
 
+  protected readonly generalService: ServiceCard = {
+    icon: 'bi-clipboard2-pulse',
+    title: 'Cita general',
+    body: 'Valoración médica inicial para revisar tu caso y orientarte hacia el tratamiento que mejor se ajuste a ti.',
+    speciality: 'General',
+  };
+
   protected readonly services: ServiceCard[] = [
     {
       icon: 'bi-activity',

@@ -22,6 +22,8 @@ export class AuthService {
     return u ? `${u.nameUser} ${u.lastNameUser}`.trim() : '';
   });
 
+  readonly welcomeMessage = signal<string | null>(null);
+
   login(payload: LoginRequest) {
     return this.http.post<LoginResponse>(`${this.base}/login`, payload).pipe(
       tap((res) => {
@@ -29,6 +31,8 @@ export class AuthService {
         if (res.user) {
           localStorage.setItem(USER_KEY, JSON.stringify(res.user));
           this.user.set(res.user);
+          this.welcomeMessage.set(`Bienvenido, ${this.fullName()}`);
+          setTimeout(() => this.welcomeMessage.set(null), 4000);
         }
       }),
     );

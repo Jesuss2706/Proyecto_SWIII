@@ -10,6 +10,21 @@
         tu diagnóstico y no al revés.
       </p>
     </div>
+    
+    <article class="pa-card pa-service-general p-4 mb-3 mb-lg-4">
+      <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+        <span class="pa-service-icon">
+          <i class="bi" [class]="generalService.icon"></i>
+        </span>
+        <div class="flex-grow-1">
+          <h3 class="pa-service-title mb-1">{{ generalService.title }}</h3>
+          <p class="pa-service-body mb-0">{{ generalService.body }}</p>
+        </div>
+        <a class="btn btn-pa" routerLink="/agendar" [queryParams]="{ especialidad: generalService.speciality }">
+          Agendar cita general
+        </a>
+      </div>
+    </article>
 
     <div class="row g-3 g-lg-4">
       @for (s of services; track s.speciality) {
