@@ -2,20 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./auth.model');
 const env = require('../../config/env');
-const eventBus = require('../../shared/eventBus');
 const { BadRequestError, UnauthorizedError, NotFoundError } = require('../../shared/errors');
-
-function toUserEvent(user) {
-  return {
-    codUser: user.codUser,
-    cedUser: Number(user.cedUser),
-    nameUser: user.nameUser,
-    secondNameUser: user.secondNameUser,
-    lastNameUser: user.lastNameUser,
-    secondLastNameUser: user.secondLastNameUser,
-    roleUser: user.roleUser,
-  };
-}
 
 async function register(dto) {
   const exists = await User.findOne({ where: { cedUser: dto.cedUser } });
@@ -35,10 +22,12 @@ async function register(dto) {
     securityAnswer: dto.securityAnswer,
   });
 
-  // people (y quien más necesite saber de usuarios nuevos) escucha este evento
-  eventBus.emit('user.registered', toUserEvent(user));
-
   return user;
+}
+
+// Detecta si una contraseña ya está encriptada con bcrypt (empieza con $2a$, $2b$ o $2y$)
+function isBcryptHash(value) {
+  return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
 }
 
 async function login({ cedUser, password }) {
@@ -47,7 +36,22 @@ async function login({ cedUser, password }) {
     throw new UnauthorizedError('Usuario no encontrado');
   }
 
-  const valid = await bcrypt.compare(password, user.passUser);
+  let valid;
+
+  if (isBcryptHash(user.passUser)) {
+    // Contraseña ya encriptada: comparación normal
+    valid = await bcrypt.compare(password, user.passUser);
+  } else {
+    // Contraseña sin encriptar (p. ej. insertada directo por SQL): comparación en texto plano
+    valid = password === user.passUser;
+
+    if (valid) {
+      // Si coincide, se encripta y se guarda para dejarla migrada a bcrypt
+      user.passUser = await bcrypt.hash(password, 10);
+      await user.save();
+    }
+  }
+
   if (!valid) {
     throw new UnauthorizedError('Contraseña incorrecta');
   }
@@ -62,12 +66,22 @@ async function login({ cedUser, password }) {
     { expiresIn: env.jwt.expiresIn }
   );
 
-  return {
+    return {
     token,
     role: user.roleUser,
     codUser: user.codUser,
     cedUser: Number(user.cedUser),
     nameUser: user.nameUser,
+    user: {
+      codUser: user.codUser,
+      cedUser: Number(user.cedUser),
+      nameUser: user.nameUser,
+      secondNameUser: user.secondNameUser,
+      lastNameUser: user.lastNameUser,
+      secondLastNameUser: user.secondLastNameUser,
+      statusUser: user.statusUser,
+      roleUser: user.roleUser,
+    },
   };
 }
 
@@ -97,7 +111,6 @@ async function update(id, dto) {
   if (dto.passUser != null) user.passUser = await bcrypt.hash(dto.passUser, 10);
 
   await user.save();
-  eventBus.emit('user.updated', toUserEvent(user));
   return user;
 }
 
@@ -107,7 +120,6 @@ async function deactivate(id) {
 
   user.statusUser = 'Inactive';
   await user.save();
-  eventBus.emit('user.updated', toUserEvent(user));
 }
 
 module.exports = {

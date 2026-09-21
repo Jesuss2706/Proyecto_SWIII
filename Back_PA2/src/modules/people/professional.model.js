@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
-const UserRef = require('./userRef.model');
+const { User } = require('../auth');
 const { SPECIALITIES, STATUSES, TYPES } = require('./people.enums');
 
 const Professional = sequelize.define(
@@ -56,6 +56,8 @@ const Professional = sequelize.define(
   }
 );
 
-Professional.belongsTo(UserRef, { foreignKey: 'codUser', targetKey: 'codUser', as: 'userRef' });
+// Asociación directa: un profesional pertenece a un usuario de auth.
+// Al vivir en la misma BD, Sequelize puede resolver el JOIN entre schemas sin problema.
+Professional.belongsTo(User, { foreignKey: 'codUser', targetKey: 'codUser', as: 'user' });
 
 module.exports = Professional;

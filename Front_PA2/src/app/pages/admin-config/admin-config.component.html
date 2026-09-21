@@ -1,0 +1,162 @@
+<app-hero
+  variant="compact"
+  eyebrow="Administración"
+  subtitle="Define hasta cuándo se pueden reservar citas y la disponibilidad de cada profesional.">
+  Parámetros de agendamiento
+</app-hero>
+
+<section class="pa-section pt-4">
+  <div class="container">
+
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">{{ error() }}</div>
+    }
+    @if (saved()) {
+      <div class="alert alert-success" role="status">{{ saved() }}</div>
+    }
+
+    <!-- ============ Parámetros generales ============ -->
+    <div class="pa-card p-4 p-lg-5 mb-4">
+      <h2 class="pa-panel-title mb-1">Ventana de agendamiento</h2>
+      <p class="pa-lead mb-4">
+        Cuántas semanas hacia adelante puede un paciente reservar desde el sistema autónomo.
+      </p>
+
+      <div class="row g-3 align-items-end">
+        <div class="col-6 col-md-3">
+          <label class="form-label" for="g-weeks">Semanas habilitadas</label>
+          <input id="g-weeks" type="number" class="form-control" min="1" max="52"
+                 [ngModel]="windowWeeks()" (ngModelChange)="windowWeeks.set($event)" name="weeks">
+        </div>
+
+        <div class="col-12 col-md-5">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="g-weekends"
+                   [ngModel]="blockWeekends()" (ngModelChange)="blockWeekends.set($event)" name="weekends">
+            <label class="form-check-label" for="g-weekends">
+              No habilitar sábados ni domingos
+            </label>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4 text-md-end">
+          <button class="btn btn-pa-dark" type="button" (click)="saveGlobal()">Guardar parámetros</button>
+        </div>
+      </div>
+
+      <p class="pa-note mt-3 mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Estos dos valores se guardan por ahora en el navegador. Cuando el backend exponga
+        <code>/api/settings</code>, solo hay que cambiar <code>SettingsService</code>.
+      </p>
+    </div>
+
+    <!-- ============ Agenda por profesional ============ -->
+    <div class="row g-4">
+
+      <div class="col-12 col-lg-4">
+        <div class="pa-card p-3 h-100">
+          <h2 class="pa-panel-title mb-3">Profesionales</h2>
+
+          @if (loading()) {
+            <div class="text-center py-4">
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            </div>
+          } @else if (professionals().length) {
+            <ul class="list-unstyled mb-0 pa-prof-list">
+              @for (p of professionals(); track p.codProf) {
+                <li>
+                  <button type="button" class="pa-prof-item"
+                          [class.is-selected]="selectedCod() === p.codProf"
+                          (click)="select(p.codProf)">
+                    <span class="pa-prof-item-name">{{ name(p) }}</span>
+                    <span class="pa-prof-item-meta">
+                      {{ specLabel(p) }}
+                      @if (p.statusProf === 'Inactive') { · inactivo }
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="pa-muted small mb-0">
+              Todavía no hay profesionales registrados. Crea primero el usuario y su perfil profesional.
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-8">
+        @if (selected(); as prof) {
+          <div class="pa-card p-4 p-lg-5">
+            <div class="d-flex justify-content-between align-items-baseline mb-4">
+              <div>
+                <h2 class="pa-panel-title mb-1">{{ name(prof) }}</h2>
+                <p class="pa-muted small mb-0">{{ specLabel(prof) }} · código {{ prof.codProf }}</p>
+              </div>
+            </div>
+
+            <p class="pa-fieldset-label">Días de atención</p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              @for (d of weekdays; track d.key) {
+                <button type="button" class="pa-day"
+                        [class.is-on]="workingDays().includes(d.key)"
+                        [attr.aria-pressed]="workingDays().includes(d.key)"
+                        (click)="toggleDay(d.key)">
+                  {{ d.label }}
+                </button>
+              }
+            </div>
+
+            <p class="pa-fieldset-label">Franja horaria e intervalo</p>
+            <div class="row g-3">
+              <div class="col-6 col-md-4">
+                <label class="form-label" for="a-in">Hora de entrada</label>
+                <input id="a-in" type="time" class="form-control"
+                       [ngModel]="arrivalTime()" (ngModelChange)="arrivalTime.set($event)" name="arrival">
+              </div>
+
+              <div class="col-6 col-md-4">
+                <label class="form-label" for="a-out">Hora de salida</label>
+                <input id="a-out" type="time" class="form-control"
+                       [ngModel]="departureTime()" (ngModelChange)="departureTime.set($event)" name="departure">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="a-int">Duración de cada cita (minutos)</label>
+                <input id="a-int" type="number" class="form-control" min="5" max="180" step="5"
+                       [ngModel]="attentionInterval()" (ngModelChange)="attentionInterval.set($event)" name="interval">
+              </div>
+            </div>
+
+            <div class="pa-preview mt-4">
+              <span class="pa-preview-value">{{ slotsPerDay() }}</span>
+              <span class="pa-preview-label">
+                citas por día con esta configuración, en {{ workingDays().length }}
+                {{ workingDays().length === 1 ? 'día' : 'días' }} de la semana
+              </span>
+            </div>
+
+            <hr class="pa-divider my-4">
+
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn btn-pa-outline" type="button" (click)="select(prof.codProf)">Descartar cambios</button>
+              <button class="btn btn-pa-dark" type="button" (click)="saveSchedule()" [disabled]="saving()">
+                @if (saving()) {
+                  <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                }
+                Guardar agenda
+              </button>
+            </div>
+          </div>
+        } @else if (!loading()) {
+          <div class="pa-card p-5 text-center">
+            <p class="fw-semibold mb-1">Selecciona un profesional</p>
+            <p class="pa-muted small mb-0">Su horario de atención aparecerá aquí.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</section>

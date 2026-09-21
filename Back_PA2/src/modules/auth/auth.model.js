@@ -3,7 +3,7 @@ const sequelize = require('../../config/db');
 
 // Roles y estados replicados de RoleUserEnum / StatusUserEnum del auth-service original
 const ROLES = ['Professional', 'Admin', 'Patient', 'Scheduler'];
-const STATUSES = ['Active', 'Inactive'];
+const STATUSER = ['Active', 'Inactive'];
 
 const User = sequelize.define(
   'User',
@@ -33,7 +33,7 @@ const User = sequelize.define(
     },
     secondLastNameUser: DataTypes.STRING,
     statusUser: {
-      type: DataTypes.ENUM(...STATUSES),
+      type: DataTypes.ENUM(...STATUSER),
       allowNull: false,
       defaultValue: 'Active',
     },
@@ -58,6 +58,6 @@ const User = sequelize.define(
 );
 
 User.ROLES = ROLES;
-User.STATUSES = STATUSES;
+User.STATUSER = STATUSER;
 
 module.exports = User;

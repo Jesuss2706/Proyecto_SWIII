@@ -1,0 +1,72 @@
+.pa-panel-title { font-size: 1rem; font-weight: 600; color: var(--pa-navy-900); }
+
+.pa-fieldset-label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--pa-muted);
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--pa-line);
+  margin-bottom: 1rem;
+}
+
+.pa-note { font-size: .78rem; color: var(--pa-muted); }
+.pa-note code { color: var(--pa-navy-700); background: var(--pa-bg); padding: .1rem .3rem; border-radius: .25rem; }
+
+/* ---------- Lista de profesionales ---------- */
+.pa-prof-list li + li { margin-top: .35rem; }
+
+.pa-prof-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: .55rem;
+  padding: .6rem .75rem;
+}
+.pa-prof-item:hover { background: var(--pa-bg); }
+.pa-prof-item.is-selected {
+  background: var(--pa-bg);
+  border-color: var(--pa-navy-500);
+}
+
+.pa-prof-item-name { display: block; font-size: .9rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-prof-item-meta { display: block; font-size: .78rem; color: var(--pa-muted); }
+
+/* ---------- Selector de días ---------- */
+.pa-day {
+  border: 1px solid var(--pa-line);
+  background: var(--pa-surface);
+  color: var(--pa-muted);
+  border-radius: 999px;
+  padding: .4rem .9rem;
+  font-size: .84rem;
+  font-weight: 600;
+}
+.pa-day:hover { border-color: var(--pa-navy-500); }
+.pa-day.is-on {
+  background: var(--pa-navy-900);
+  border-color: var(--pa-navy-900);
+  color: #fff;
+}
+
+/* ---------- Vista previa del cálculo ---------- */
+.pa-preview {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  background: var(--pa-bg);
+  border-radius: .65rem;
+  padding: .9rem 1.1rem;
+}
+
+.pa-preview-value {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--pa-navy-900);
+}
+
+.pa-preview-label { font-size: .82rem; color: var(--pa-muted); }

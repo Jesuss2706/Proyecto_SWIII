@@ -1,0 +1,50 @@
+<section class="pa-auth">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+
+        <div class="pa-card p-4 p-lg-5">
+          <p class="pa-eyebrow mb-2">Acceso</p>
+          <h1 class="pa-display pa-auth-title mb-4">Entra a tu cuenta</h1>
+
+          @if (expired()) {
+            <div class="alert alert-warning py-2 small" role="status">
+              Tu sesión venció por inactividad. Ingresa de nuevo para continuar.
+            </div>
+          }
+          @if (error()) {
+            <div class="alert alert-danger py-2 small" role="alert">{{ error() }}</div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="mb-3">
+              <label class="form-label" for="l-ced">Número de cédula</label>
+              <input id="l-ced" class="form-control" inputmode="numeric" autocomplete="username"
+                     formControlName="cedUser" [class.is-invalid]="invalid('cedUser')">
+              <div class="invalid-feedback">Escribe tu cédula, solo números.</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label" for="l-pass">Contraseña</label>
+              <input id="l-pass" type="password" class="form-control" autocomplete="current-password"
+                     formControlName="password" [class.is-invalid]="invalid('password')">
+              <div class="invalid-feedback">La contraseña es obligatoria.</div>
+            </div>
+
+            <button class="btn btn-pa-dark w-100 mb-3" type="submit" [disabled]="busy()">
+              @if (busy()) {
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+              }
+              Iniciar sesión
+            </button>
+          </form>
+
+          <p class="text-center small pa-muted mb-0">
+            ¿Primera vez aquí? <a routerLink="/registro">Crea tu cuenta</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main { flex: 1 0 auto; }
+
+/* Enlace de salto visible solo al navegar con teclado */
+.pa-skip {
+  position: absolute;
+  left: -999px;
+  top: .5rem;
+  z-index: 1080;
+  background: var(--pa-navy-900);
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: .5rem;
+  text-decoration: none;
+  font-size: .85rem;
+}
+.pa-skip:focus { left: .5rem; }
+
+/* Alerta de bienvenida al iniciar sesión */
+.pa-welcome {
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1090;
+  width: min(92vw, 420px);
+}

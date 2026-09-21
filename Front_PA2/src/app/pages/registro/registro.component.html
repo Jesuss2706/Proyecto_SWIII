@@ -1,0 +1,97 @@
+<section class="pa-auth">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-7">
+
+        <div class="pa-card p-4 p-lg-5">
+          @if (done()) {
+            <div class="text-center py-4">
+              <h1 class="pa-display pa-auth-title mb-2">Cuenta creada</h1>
+              <p class="pa-lead mx-auto mb-0">Te llevamos al inicio de sesión…</p>
+            </div>
+          } @else {
+            <p class="pa-eyebrow mb-2">Registro</p>
+            <h1 class="pa-display pa-auth-title mb-4">Crea tu cuenta de paciente</h1>
+
+            @if (error()) {
+              <div class="alert alert-danger py-2 small" role="alert">{{ error() }}</div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="submit()">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="r-nombre">Primer nombre *</label>
+                  <input id="r-nombre" class="form-control" formControlName="nameUser"
+                         [class.is-invalid]="invalid('nameUser')">
+                  <div class="invalid-feedback">Campo obligatorio.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="r-apellido">Primer apellido *</label>
+                  <input id="r-apellido" class="form-control" formControlName="lastNameUser"
+                         [class.is-invalid]="invalid('lastNameUser')">
+                  <div class="invalid-feedback">Campo obligatorio.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="r-nombre2">Segundo nombre</label>
+                  <input id="r-nombre2" class="form-control" formControlName="secondNameUser">
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="r-apellido2">Segundo apellido</label>
+                  <input id="r-apellido2" class="form-control" formControlName="secondLastNameUser">
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="r-ced">Número de cédula *</label>
+                  <input id="r-ced" class="form-control" inputmode="numeric" formControlName="cedUser"
+                         [class.is-invalid]="invalid('cedUser')">
+                  <div class="invalid-feedback">Entre 6 y 12 dígitos.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="r-pass">Contraseña *</label>
+                  <input id="r-pass" type="password" class="form-control" autocomplete="new-password"
+                         formControlName="passUser" [class.is-invalid]="invalid('passUser')">
+                  <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label" for="r-preg">Pregunta de seguridad *</label>
+                  <select id="r-preg" class="form-select" formControlName="securityQuestion"
+                          [class.is-invalid]="invalid('securityQuestion')">
+                    <option value="">Selecciona una pregunta</option>
+                    @for (q of questions; track q) {
+                      <option [value]="q">{{ q }}</option>
+                    }
+                  </select>
+                  <div class="invalid-feedback">Selecciona una pregunta.</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label" for="r-resp">Respuesta *</label>
+                  <input id="r-resp" class="form-control" formControlName="securityAnswer"
+                         [class.is-invalid]="invalid('securityAnswer')">
+                  <div class="invalid-feedback">Escribe tu respuesta.</div>
+                </div>
+              </div>
+
+              <button class="btn btn-pa-dark w-100 mt-4 mb-3" type="submit" [disabled]="busy()">
+                @if (busy()) {
+                  <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                }
+                Crear cuenta
+              </button>
+            </form>
+
+            <p class="text-center small pa-muted mb-0">
+              ¿Ya tienes cuenta? <a routerLink="/ingresar">Inicia sesión</a>
+            </p>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

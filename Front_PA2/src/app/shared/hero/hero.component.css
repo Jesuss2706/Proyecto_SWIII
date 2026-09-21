@@ -1,0 +1,42 @@
+/* ---------- Portada ---------- */
+.pa-hero { padding-block: 3rem 4rem; }
+@media (min-width: 992px) { .pa-hero { padding-block: 5rem 6rem; } }
+
+.pa-hero-title {
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  max-width: 14ch;
+}
+
+.pa-stats { border-top: 1px solid var(--pa-line); padding-top: 1.5rem; max-width: 26rem; }
+
+.pa-stat-value {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.85rem;
+  color: var(--pa-navy-900);
+  line-height: 1;
+}
+
+.pa-stat-label { font-size: .78rem; font-weight: 500; color: var(--pa-muted); }
+
+.pa-figure-svg {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  display: block;
+  margin-inline: auto;
+  filter: drop-shadow(0 26px 40px rgba(19, 36, 52, .16));
+}
+
+/* En móvil la figura va después del texto y ocupa menos alto */
+@media (max-width: 991.98px) {
+  .pa-figure-svg { max-width: 300px; }
+}
+
+/* ---------- Cabecera de páginas internas ---------- */
+.pa-pageheader {
+  background: var(--pa-surface);
+  border-bottom: 1px solid var(--pa-line);
+  padding-block: 2.5rem;
+}
+
+.pa-pageheader-title { font-size: clamp(1.6rem, 3.6vw, 2.25rem); }

@@ -1,0 +1,119 @@
+<app-hero variant="home" />
+
+<!-- ============ Servicios ============ -->
+<section id="servicios" class="pa-section bg-pa-surface">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="pa-eyebrow mb-2">Nuestros servicios</p>
+      <p class="pa-lead mx-auto mb-0">
+        Cada tratamiento parte de una valoración clínica completa, para que el enfoque se ajuste a
+        tu diagnóstico y no al revés.
+      </p>
+    </div>
+    
+    <article class="pa-card pa-service-general p-4 mb-3 mb-lg-4">
+      <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+        <span class="pa-service-icon">
+          <i class="bi" [class]="generalService.icon"></i>
+        </span>
+        <div class="flex-grow-1">
+          <h3 class="pa-service-title mb-1">{{ generalService.title }}</h3>
+          <p class="pa-service-body mb-0">{{ generalService.body }}</p>
+        </div>
+        <a class="btn btn-pa" routerLink="/agendar" [queryParams]="{ especialidad: generalService.speciality }">
+          Agendar cita general
+        </a>
+      </div>
+    </article>
+
+    <div class="row g-3 g-lg-4">
+      @for (s of services; track s.speciality) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <article class="pa-card h-100 p-4">
+            <span class="pa-service-icon mb-3">
+              <i class="bi" [class]="s.icon"></i>
+            </span>
+            <h3 class="pa-service-title mb-2">{{ s.title }}</h3>
+            <p class="pa-service-body mb-3">{{ s.body }}</p>
+            <a class="pa-service-link" routerLink="/agendar" [queryParams]="{ especialidad: s.speciality }">
+              Agendar {{ s.title | lowercase }}
+            </a>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============ Por qué Piedra Azul ============ -->
+<section id="por-que" class="pa-section">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-12 col-lg-5">
+        <p class="pa-eyebrow mb-3">Por qué Piedra Azul</p>
+        <h2 class="pa-display pa-section-title mb-3">
+          Un centro pensado para el seguimiento, no solo la sesión
+        </h2>
+        <p class="pa-lead mb-0">
+          Cada visita queda registrada en tu historia clínica, así el profesional que te atienda
+          siempre conoce tu evolución.
+        </p>
+      </div>
+
+      <div class="col-12 col-lg-6 offset-lg-1">
+        <ul class="pa-reasons list-unstyled mb-0">
+          @for (r of reasons; track r.title) {
+            <li class="pa-reason">
+              <h3 class="pa-reason-title mb-1">{{ r.title }}</h3>
+              <p class="pa-reason-body mb-0">{{ r.body }}</p>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Equipo ============ -->
+<section id="equipo" class="pa-section bg-pa-surface">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="pa-eyebrow mb-2">Nuestro equipo</p>
+      <h2 class="pa-display pa-section-title mb-0">Profesionales de Piedra Azul</h2>
+    </div>
+
+    <div class="row g-3 g-lg-4">
+      @for (m of team(); track m.name) {
+        <div class="col-6 col-lg-3">
+          <article class="text-center">
+            <div class="pa-avatar mb-3" aria-hidden="true">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <h3 class="pa-member-name mb-1">{{ m.name }}</h3>
+            <p class="pa-member-speciality mb-0">{{ m.speciality }}</p>
+            <p class="pa-member-note mb-0">{{ m.note }}</p>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============ Llamado a la acción ============ -->
+<section class="pb-5 bg-pa-surface">
+  <div class="container">
+    <div class="pa-cta">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-lg-8">
+          <h2 class="pa-cta-title mb-2">Agenda tu cita en menos de dos minutos</h2>
+          <p class="pa-cta-body mb-0">
+            Completa el formulario de inscripción y elige el horario que mejor se ajuste a tu tratamiento.
+          </p>
+        </div>
+        <div class="col-12 col-lg-4 text-lg-end">
+          <a class="btn btn-pa" routerLink="/agendar">Ir al formulario</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
