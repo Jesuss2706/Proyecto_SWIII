@@ -1,22 +1,6 @@
 const Professional = require('./professional.model');
-const UserRef = require('./userRef.model');
-const eventBus = require('../../shared/eventBus');
+const { User } = require('../auth');
 const { BadRequestError, NotFoundError } = require('../../shared/errors');
-
-function toProfessionalEvent(prof) {
-  const userRef = prof.userRef;
-  return {
-    codProf: prof.codProf,
-    nameProf: userRef ? userRef.nameUser || '' : '',
-    lastNameProf: userRef ? userRef.lastNameUser || '' : '',
-    specialityProf: prof.specialityProf,
-    typeProf: prof.typeProf,
-    arrivalTime: prof.arrivalTime,
-    departureTime: prof.departureTime,
-    attentionInterval: prof.attentionInterval ?? 30,
-    unavailableDays: prof.unavailableDays,
-  };
-}
 
 function assertValidSchedule(arrivalTime, departureTime) {
   if (arrivalTime && departureTime && arrivalTime >= departureTime) {
@@ -25,8 +9,8 @@ function assertValidSchedule(arrivalTime, departureTime) {
 }
 
 async function register(dto) {
-  const userRef = await UserRef.findByPk(dto.codUser);
-  if (!userRef) {
+  const user = await User.findByPk(dto.codUser);
+  if (!user) {
     throw new NotFoundError('No existe un usuario con ese código');
   }
 
@@ -49,32 +33,31 @@ async function register(dto) {
     unavailableDays: dto.unavailableDays,
     statusProf: 'Active',
   });
-  prof.userRef = userRef;
+  prof.user = user;
 
-  eventBus.emit('professional.registered', toProfessionalEvent(prof));
   return prof;
 }
 
 async function findAll() {
-  return Professional.findAll({ include: 'userRef' });
+  return Professional.findAll({ include: 'user' });
 }
 
 async function findByCodUser(codUser) {
-  const userRef = await UserRef.findByPk(codUser);
-  if (!userRef) throw new NotFoundError(`Usuario no encontrado: ${codUser}`);
-  return Professional.findOne({ where: { codUser }, include: 'userRef' });
+  const user = await User.findByPk(codUser);
+  if (!user) throw new NotFoundError(`Usuario no encontrado: ${codUser}`);
+  return Professional.findOne({ where: { codUser }, include: 'user' });
 }
 
 async function findBySpeciality(speciality) {
-  return Professional.findAll({ where: { specialityProf: speciality }, include: 'userRef' });
+  return Professional.findAll({ where: { specialityProf: speciality }, include: 'user' });
 }
 
 async function findByCodProf(codProf) {
-  return Professional.findByPk(codProf, { include: 'userRef' });
+  return Professional.findByPk(codProf, { include: 'user' });
 }
 
 async function update(id, dto) {
-  const prof = await Professional.findByPk(id, { include: 'userRef' });
+  const prof = await Professional.findByPk(id, { include: 'user' });
   if (!prof) throw new NotFoundError('Profesional no encontrado');
 
   if (dto.genProf != null) prof.genProf = dto.genProf;
@@ -90,7 +73,6 @@ async function update(id, dto) {
   if (dto.unavailableDays != null) prof.unavailableDays = dto.unavailableDays;
 
   await prof.save();
-  eventBus.emit('professional.updated', toProfessionalEvent(prof));
   return prof;
 }
 

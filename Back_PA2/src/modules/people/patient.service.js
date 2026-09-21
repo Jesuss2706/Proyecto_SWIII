@@ -1,19 +1,5 @@
 const Patient = require('./patient.model');
-const eventBus = require('../../shared/eventBus');
 const { BadRequestError, NotFoundError } = require('../../shared/errors');
-
-function toPatientEvent(patient) {
-  return {
-    codPatient: patient.codPatient,
-    idPatient: Number(patient.idPatient),
-    namePatient: patient.namePatient,
-    secondNamePatient: patient.secondNamePatient,
-    lastNamePatient: patient.lastNamePatient,
-    secondLastNamePatient: patient.secondLastNamePatient,
-    phonePatient: patient.phonePatient != null ? Number(patient.phonePatient) : null,
-    genderPatient: patient.genderPatient,
-  };
-}
 
 async function register(dto) {
   const exists = await Patient.findOne({ where: { idPatient: dto.idPatient } });
@@ -32,8 +18,6 @@ async function register(dto) {
     genderPatient: dto.genderPatient,
   });
 
-  // appointment (u otro módulo) puede escuchar esto para su propia lógica
-  eventBus.emit('patient.registered', toPatientEvent(patient));
   return patient;
 }
 
@@ -62,7 +46,6 @@ async function update(id, dto) {
   if (dto.genderPatient != null) patient.genderPatient = dto.genderPatient;
 
   await patient.save();
-  eventBus.emit('patient.updated', toPatientEvent(patient));
   return patient;
 }
 

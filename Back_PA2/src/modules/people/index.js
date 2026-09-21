@@ -1,4 +1,3 @@
-require('./people.listeners'); // registra los listeners al cargar el módulo
 const routes = require('./people.routes');
 const facade = require('./people.facade');
 const enums = require('./people.enums');

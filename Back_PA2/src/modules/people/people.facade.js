@@ -17,11 +17,11 @@ async function getPatientByCod(codPatient) {
 }
 
 function mapProfessional(prof) {
-  const userRef = prof.userRef;
+  const user = prof.user;
   return {
     codProf: prof.codProf,
-    nameProf: userRef ? userRef.nameUser || '' : '',
-    lastNameProf: userRef ? userRef.lastNameUser || '' : '',
+    nameProf: user ? buildFullName(user.nameUser, user.secondNameUser) : '',
+    lastNameProf: user ? buildFullName(user.lastNameUser, user.secondLastNameUser) : '',
     specialityProf: prof.specialityProf,
     typeProf: prof.typeProf,
     arrivalTime: prof.arrivalTime,
@@ -33,20 +33,20 @@ function mapProfessional(prof) {
 
 // Solo profesionales activos son elegibles para agendar citas.
 async function getActiveProfessionalByCod(codProf) {
-  const prof = await Professional.findByPk(codProf, { include: 'userRef' });
+  const prof = await Professional.findByPk(codProf, { include: 'user' });
   if (!prof || prof.statusProf !== 'Active') return null;
   return mapProfessional(prof);
 }
 
 async function getAllActiveProfessionals() {
-  const list = await Professional.findAll({ where: { statusProf: 'Active' }, include: 'userRef' });
+  const list = await Professional.findAll({ where: { statusProf: 'Active' }, include: 'user' });
   return list.map(mapProfessional);
 }
 
 async function getActiveProfessionalsBySpeciality(speciality) {
   const list = await Professional.findAll({
     where: { statusProf: 'Active', specialityProf: speciality },
-    include: 'userRef',
+    include: 'user',
   });
   return list.map(mapProfessional);
 }

@@ -10,17 +10,21 @@ src/
 ├── app.js                 # instancia de Express + montaje de rutas
 ├── server.js               # arranque: conecta BD y levanta el servidor
 ├── config/                 # env y conexión a Postgres (Sequelize)
-├── shared/                 # kernel compartido: eventBus, errores, middlewares
+├── shared/                 # kernel compartido: errores, middlewares
 └── modules/
     ├── auth/                # login, registro, JWT
     ├── people/               # pacientes y profesionales
     └── appointment/          # citas y exportación
 ```
 
-Cada módulo expone solo lo necesario a través de su `index.js`. Ningún
+Cada módulo expone solo lo necesario a través de su `index.js` (rutas y,
+cuando aplica, una fachada con funciones/modelos de solo lectura). Ningún
 módulo debe hacer `require()` directo de un archivo interno de otro módulo
-(modelo, servicio) — la comunicación entre módulos se hace mediante el
-`eventBus` en `shared/eventBus.js`.
+(modelo, servicio) — solo puede usar lo que el otro módulo expone en su
+`index.js`. Al vivir todos en el mismo proceso y sobre la misma base de
+datos, la comunicación entre módulos es una llamada directa (o, cuando hace
+falta un JOIN entre datos de dos módulos, una asociación de Sequelize entre
+sus modelos) — no hay eventos ni colas de mensajes simulando microservicios.
 
 ## Cómo levantarlo
 
@@ -50,22 +54,23 @@ módulo debe hacer `require()` directo de un archivo interno de otro módulo
 ## Estado de la migración
 
 - `auth`: completo. Login por cédula, registro, roles (`Professional`, `Admin`,
-  `Patient`, `Scheduler`), activar/desactivar. Publica `user.registered` y `user.updated`.
+  `Patient`, `Scheduler`), activar/desactivar. Expone el modelo `User` en su
+  `index.js` para que otros módulos (como `people`) puedan asociarlo
+  directamente por Sequelize.
 - `people`: completo. Pacientes y profesionales con las mismas reglas de negocio
   del `people-service` original (no duplicar identificación/usuario, validar que
   la hora de llegada sea antes que la de salida, desactivación en vez de borrado
-  para profesionales). `people.listeners.js` mantiene `UserRef` sincronizado
-  escuchando los eventos de `auth`. Publica `patient.registered`, `patient.updated`,
-  `professional.registered` y `professional.updated`.
+  para profesionales). `Professional` está asociado por Sequelize (`belongsTo`)
+  directamente al modelo `User` de `auth` — no se mantiene ninguna copia
+  duplicada de los datos del usuario.
 - `appointment`: completo. Crear/reagendar/cancelar/completar citas con las
   mismas reglas del `appointment-service` original (un paciente no puede tener
   dos citas `Scheduled` a la vez, no se puede reagendar una cita cancelada o
   completada, etc.), generación de horarios disponibles respetando el horario
   y los días no laborables de cada profesional, búsqueda del primer turno
   disponible por especialidad (saltando fines de semana y festivos), y
-  exportación a JSON/CSV/HTML con el patrón Strategy. En vez de mantener
-  copias `PatientRef`/`ProfessionalRef` sincronizadas por eventos como en el
-  original, consulta directamente la fachada de `people` — una ventaja real
+  exportación a JSON/CSV/HTML con el patrón Strategy. Consulta directamente la
+  fachada de `people` para datos de pacientes/profesionales — una ventaja real
   del monolito modular sobre los microservicios.
 
 ## Endpoints disponibles
