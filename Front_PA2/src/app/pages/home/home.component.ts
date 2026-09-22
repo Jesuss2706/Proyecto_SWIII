@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { LowerCasePipe } from '@angular/common';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { PeopleService } from '../../core/services/people.service';
-import { SPECIALITY_LABELS, Speciality } from '../../core/models';
+import { SPECIALITY_LABELS, Speciality, professionalFullName } from '../../core/models';
 import { asList } from '../../core/utils';
 
 interface ServiceCard {
@@ -90,7 +90,7 @@ export class HomeComponent {
         if (!activos.length) return;
         this.team.set(
           activos.slice(0, 4).map((p) => ({
-            name: `${p.userRef?.nameUser ?? ''} ${p.userRef?.lastNameUser ?? ''}`.trim(),
+            name: professionalFullName(p),
             speciality: SPECIALITY_LABELS[p.specialityProf],
             note: p.typeProf === 'Doctor' ? 'Médico tratante' : 'Terapeuta',
           })),

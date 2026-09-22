@@ -18,8 +18,8 @@ export const routes: Routes = [
     title: 'Crear cuenta — Piedra Azul',
   },
   {
-    // Requisito 2
     path: 'agendar',
+    canActivate: [authGuard],
     loadComponent: () => import('./pages/agendar/agendar.component').then((m) => m.AgendarComponent),
     title: 'Agendar cita — Piedra Azul',
   },
@@ -30,7 +30,6 @@ export const routes: Routes = [
     title: 'Mis citas — Piedra Azul',
   },
   {
-    // Requisito 1
     path: 'agenda',
     canActivate: [roleGuard('Scheduler', 'Admin', 'Professional')],
     loadComponent: () =>
@@ -40,7 +39,6 @@ export const routes: Routes = [
     title: 'Agenda del día — Piedra Azul',
   },
   {
-    // Requisito 3
     path: 'configuracion',
     canActivate: [roleGuard('Admin')],
     loadComponent: () =>

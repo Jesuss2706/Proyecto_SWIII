@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { PeopleService } from '../../core/services/people.service';
 import { SettingsService } from '../../core/services/settings.service';
-import { Professional, SPECIALITY_LABELS, WEEKDAYS } from '../../core/models';
+import { Professional, SPECIALITY_LABELS, WEEKDAYS, professionalFullName } from '../../core/models';
 import { asList } from '../../core/utils';
 
 @Component({
@@ -149,7 +149,7 @@ export class AdminConfigComponent {
 
   // ---- helpers ----
   protected name(p: Professional): string {
-    const n = `${p.userRef?.nameUser ?? ''} ${p.userRef?.lastNameUser ?? ''}`.trim();
+    const n = professionalFullName(p);
     return n || `Profesional ${p.codProf}`;
   }
 

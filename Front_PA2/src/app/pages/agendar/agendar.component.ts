@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { PeopleService } from '../../core/services/people.service';
+import { AuthService } from '../../core/services/auth.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { Patient, SPECIALITY_LABELS, Slot, Speciality } from '../../core/models';
 import { asList, formatDate, formatTime, todayISO } from '../../core/utils';
@@ -12,9 +13,10 @@ type Step = 1 | 2 | 3;
 
 /**
  * Requisito 2 — El paciente agenda su cita desde la web.
- * Flujo: verificar cédula → datos del paciente → elegir franja y confirmar.
- * Endpoints: GET /people/patients/:idPatient, POST /people/patients,
- *            GET /appointments/generated, POST /appointments
+ * Flujo: verificar cédula (en patient.idPatient y, si no está, en auth.users.cedUser)
+ *        → datos del paciente → elegir franja y confirmar.
+ * Endpoints: GET /people/patients/:idPatient, GET /auth/users/:cedula,
+ *            POST /people/patients, GET /appointments/generated, POST /appointments
  */
 @Component({
   selector: 'app-agendar',
@@ -26,6 +28,7 @@ export class AgendarComponent {
   private fb = inject(FormBuilder);
   private people = inject(PeopleService);
   private appointments = inject(AppointmentService);
+  private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   protected settings = inject(SettingsService);
 
@@ -104,6 +107,7 @@ export class AgendarComponent {
 
     this.people.findPatientByCedula(ced).subscribe({
       next: (p) => {
+        // Ya tiene historia clínica: se usa tal cual, como antes.
         this.patient.set(p);
         this.isReturning.set(true);
         this.patientForm.patchValue({
@@ -121,14 +125,36 @@ export class AgendarComponent {
         this.step.set(2);
       },
       error: () => {
-        // 404: es un paciente nuevo, se abre el formulario en blanco.
-        this.patient.set(null);
-        this.isReturning.set(false);
-        this.patientForm.reset();
-        this.patientForm.patchValue({ idPatient: ced });
-        this.notice.set('Es tu primera cita con nosotros. Completa tus datos para continuar.');
-        this.busy.set(false);
-        this.step.set(2);
+        // No tiene historia clínica todavía: busca si al menos existe como
+        // usuario registrado (auth.users, por cedUser) para no pedirle de
+        // nuevo el nombre y el apellido — igual se va a guardar en patient.
+        this.auth.findByCedula(Number(ced)).subscribe({
+          next: (u) => {
+            this.patient.set(null);
+            this.isReturning.set(false);
+            this.patientForm.reset();
+            this.patientForm.patchValue({
+              idPatient: ced,
+              namePatient: u.nameUser,
+              secondNamePatient: u.secondNameUser ?? '',
+              lastNamePatient: u.lastNameUser,
+              secondLastNamePatient: u.secondLastNameUser ?? '',
+            });
+            this.notice.set('Encontramos tu cuenta. Completa los datos que falten para agendar tu primera cita.');
+            this.busy.set(false);
+            this.step.set(2);
+          },
+          error: () => {
+            // Tampoco existe como usuario: paciente totalmente nuevo, formulario en blanco.
+            this.patient.set(null);
+            this.isReturning.set(false);
+            this.patientForm.reset();
+            this.patientForm.patchValue({ idPatient: ced });
+            this.notice.set('Es tu primera cita con nosotros. Completa tus datos para continuar.');
+            this.busy.set(false);
+            this.step.set(2);
+          },
+        });
       },
     });
   }
@@ -290,3 +316,4 @@ export class AgendarComponent {
     return age >= 0 && age < 130 ? age : null;
   }
 }
+

@@ -105,7 +105,17 @@ export interface Professional {
   attentionInterval: number;
   /** 'MONDAY,WEDNESDAY' — días en los que NO atiende */
   unavailableDays?: string | null;
-  userRef?: UserRef;
+  /** Datos del usuario (auth) asociado, incluidos directamente por el backend. */
+  user?: User;
+}
+
+/** Arma "Nombre Segundo Nombre Apellido Segundo Apellido" a partir del User asociado a un profesional. */
+export function professionalFullName(p: Professional): string {
+  const u = p.user;
+  if (!u) return '';
+  const name = [u.nameUser, u.secondNameUser].filter(Boolean).join(' ');
+  const lastName = [u.lastNameUser, u.secondLastNameUser].filter(Boolean).join(' ');
+  return `${name} ${lastName}`.trim();
 }
 
 /** Campos de agenda que acepta PUT /people/professionals/:id */
