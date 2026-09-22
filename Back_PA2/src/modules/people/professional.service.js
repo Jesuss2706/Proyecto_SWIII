@@ -2,6 +2,11 @@ const Professional = require('./professional.model');
 const { User } = require('../auth');
 const { BadRequestError, NotFoundError } = require('../../shared/errors');
 
+// Nunca se debe exponer passUser, securityQuestion ni securityAnswer a través
+// de esta asociación: solo los campos que el front necesita mostrar.
+const USER_PUBLIC_ATTRS = ['codUser', 'cedUser', 'nameUser', 'secondNameUser', 'lastNameUser', 'secondLastNameUser', 'statusUser', 'roleUser'];
+const includeUser = { association: 'user', attributes: USER_PUBLIC_ATTRS };
+
 function assertValidSchedule(arrivalTime, departureTime) {
   if (arrivalTime && departureTime && arrivalTime >= departureTime) {
     throw new BadRequestError('La hora de llegada no puede ser mayor que la de salida');
@@ -31,33 +36,34 @@ async function register(dto) {
     departureTime: dto.departureTime,
     attentionInterval: dto.attentionInterval,
     unavailableDays: dto.unavailableDays,
+    imageProf: dto.imageProf || null,
     statusProf: 'Active',
   });
-  prof.user = user;
 
-  return prof;
+  // Releer con el include para no filtrar campos sensibles del User en la respuesta
+  return Professional.findByPk(prof.codProf, { include: includeUser });
 }
 
 async function findAll() {
-  return Professional.findAll({ include: 'user' });
+  return Professional.findAll({ include: includeUser });
 }
 
 async function findByCodUser(codUser) {
   const user = await User.findByPk(codUser);
   if (!user) throw new NotFoundError(`Usuario no encontrado: ${codUser}`);
-  return Professional.findOne({ where: { codUser }, include: 'user' });
+  return Professional.findOne({ where: { codUser }, include: includeUser });
 }
 
 async function findBySpeciality(speciality) {
-  return Professional.findAll({ where: { specialityProf: speciality }, include: 'user' });
+  return Professional.findAll({ where: { specialityProf: speciality }, include: includeUser });
 }
 
 async function findByCodProf(codProf) {
-  return Professional.findByPk(codProf, { include: 'user' });
+  return Professional.findByPk(codProf, { include: includeUser });
 }
 
 async function update(id, dto) {
-  const prof = await Professional.findByPk(id, { include: 'user' });
+  const prof = await Professional.findByPk(id, { include: includeUser });
   if (!prof) throw new NotFoundError('Profesional no encontrado');
 
   if (dto.genProf != null) prof.genProf = dto.genProf;
@@ -71,6 +77,7 @@ async function update(id, dto) {
 
   if (dto.attentionInterval != null) prof.attentionInterval = dto.attentionInterval;
   if (dto.unavailableDays != null) prof.unavailableDays = dto.unavailableDays;
+  if (dto.imageProf !== undefined) prof.imageProf = dto.imageProf || null;
 
   await prof.save();
   return prof;

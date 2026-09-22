@@ -316,4 +316,3 @@ export class AgendarComponent {
     return age >= 0 && age < 130 ? age : null;
   }
 }
-

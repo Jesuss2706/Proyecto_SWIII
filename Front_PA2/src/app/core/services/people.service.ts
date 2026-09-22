@@ -6,6 +6,7 @@ import {
   PatientRequest,
   Professional,
   ProfessionalScheduleRequest,
+  PublicProfessional,
   Speciality,
 } from '../models';
 
@@ -13,6 +14,7 @@ import {
 export class PeopleService {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/people`;
+  private publicBase = `${environment.apiUrl}/public/people`;
 
   // ----- Pacientes -----
   /** GET /people/patients/:idPatient — busca por número de cédula. */
@@ -48,5 +50,11 @@ export class PeopleService {
   /** Requisito 3: actualiza franja horaria, intervalo y días no disponibles. */
   updateSchedule(codProf: number, payload: ProfessionalScheduleRequest) {
     return this.http.put<Professional>(`${this.base}/professionals/${codProf}`, payload);
+  }
+
+  // ----- Público (sin sesión) -----
+  /** GET /public/people/professionals — profesionales activos, para el Home. */
+  listPublicActiveProfessionals() {
+    return this.http.get<PublicProfessional[]>(`${this.publicBase}/professionals`);
   }
 }

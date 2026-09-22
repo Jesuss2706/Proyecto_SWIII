@@ -43,11 +43,56 @@ section.text-center .pa-section-title { margin-inline: auto; }
   place-items: center;
   color: rgba(255, 255, 255, .85);
   font-size: 2.6rem;
+  overflow: hidden;
+}
+
+.pa-avatar-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .pa-member-name { font-size: .92rem; font-weight: 600; color: var(--pa-navy-900); }
 .pa-member-speciality { font-size: .8rem; color: var(--pa-gold-600); }
 .pa-member-note { font-size: .78rem; color: var(--pa-muted); }
+
+/* ---------- Carrusel del equipo ---------- */
+#pa-team-carousel { position: relative; padding-inline: 2.75rem; }
+
+.pa-carousel-btn {
+  position: absolute;
+  top: 40%;
+  translate: 0 -50%;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--pa-line);
+  background: #fff;
+  color: var(--pa-navy-900);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(20, 30, 50, .08);
+}
+.pa-carousel-btn:hover { color: var(--pa-gold-600); }
+.pa-carousel-prev { left: 0; }
+.pa-carousel-next { right: 0; }
+
+.pa-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: .4rem;
+  margin-top: 1.5rem;
+}
+.pa-carousel-dots button {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--pa-line);
+}
+.pa-carousel-dots button.active { background: var(--pa-gold-600); }
 
 /* ---------- CTA ---------- */
 .pa-cta {

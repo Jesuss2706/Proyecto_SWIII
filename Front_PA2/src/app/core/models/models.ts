@@ -82,14 +82,6 @@ export interface Patient {
 
 export type PatientRequest = Omit<Patient, 'codPatient'>;
 
-export interface UserRef {
-  codUser: number;
-  cedUser: number;
-  nameUser: string;
-  lastNameUser: string;
-  roleUser: UserRole;
-}
-
 export interface Professional {
   codProf: number;
   codUser: number;
@@ -105,6 +97,8 @@ export interface Professional {
   attentionInterval: number;
   /** 'MONDAY,WEDNESDAY' — días en los que NO atiende */
   unavailableDays?: string | null;
+  /** URL de la foto del profesional (opcional). */
+  imageProf?: string | null;
   /** Datos del usuario (auth) asociado, incluidos directamente por el backend. */
   user?: User;
 }
@@ -124,6 +118,24 @@ export interface ProfessionalScheduleRequest {
   departureTime: string;
   attentionInterval: number;
   unavailableDays: string;
+}
+
+/**
+ * Profesional "público" — lo que devuelve GET /public/people/professionals
+ * (sin autenticación). Ya viene mapeado por el backend: sin datos de auth,
+ * sin codUser/statusProf/genProf. Se usa en el Home, sección "Nuestro equipo".
+ */
+export interface PublicProfessional {
+  codProf: number;
+  nameProf: string;
+  lastNameProf: string;
+  specialityProf: Speciality;
+  typeProf: ProfType;
+  arrivalTime: string;
+  departureTime: string;
+  attentionInterval: number;
+  unavailableDays?: string | null;
+  imageProf?: string | null;
 }
 
 export interface Appointment {

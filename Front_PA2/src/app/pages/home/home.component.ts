@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LowerCasePipe } from '@angular/common';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { PeopleService } from '../../core/services/people.service';
-import { SPECIALITY_LABELS, Speciality, professionalFullName } from '../../core/models';
+import { SPECIALITY_LABELS, Speciality } from '../../core/models';
 import { asList } from '../../core/utils';
 
 interface ServiceCard {
@@ -17,7 +17,12 @@ interface TeamMember {
   name: string;
   speciality: string;
   note: string;
+  /** URL de la foto (opcional). Si no hay, el template muestra el avatar por defecto. */
+  image?: string | null;
 }
+
+/** Profesionales por diapositiva del carrusel de "Nuestro equipo". */
+const TEAM_PAGE_SIZE = 4;
 
 @Component({
   selector: 'app-home',
@@ -72,9 +77,10 @@ export class HomeComponent {
   ];
 
   /**
-   * Equipo mostrado en la portada. GET /api/people/professionals está detrás
-   * del authMiddleware, así que un visitante sin sesión no puede consultarlo:
-   * cuando la petición falla se conserva este contenido de respaldo.
+   * Equipo mostrado en la portada, en un carrusel de a 4 profesionales por
+   * diapositiva. GET /api/public/people/professionals es público (no exige
+   * sesión), así que cualquier visitante ve los profesionales activos reales;
+   * si la petición falla igual se conserva este contenido de respaldo.
    */
   protected readonly team = signal<TeamMember[]>([
     { name: 'Dr. Andrés Ceballos', speciality: 'Terapia neural', note: '15 años de experiencia' },
@@ -83,21 +89,32 @@ export class HomeComponent {
     { name: 'Dra. Camila Torres', speciality: 'Fisioterapia', note: 'Terapia manual' },
   ]);
 
+  /** Divide el equipo en grupos de 4 para cada diapositiva del carrusel. */
+  protected readonly teamSlides = computed(() => {
+    const members = this.team();
+    const slides: TeamMember[][] = [];
+    for (let i = 0; i < members.length; i += TEAM_PAGE_SIZE) {
+      slides.push(members.slice(i, i + TEAM_PAGE_SIZE));
+    }
+    return slides;
+  });
+
   constructor() {
-    this.people.listProfessionals().subscribe({
+    this.people.listPublicActiveProfessionals().subscribe({
       next: (res) => {
-        const activos = asList(res).filter((p) => p.statusProf === 'Active');
+        const activos = asList(res);
         if (!activos.length) return;
         this.team.set(
-          activos.slice(0, 4).map((p) => ({
-            name: professionalFullName(p),
+          activos.map((p) => ({
+            name: `${p.nameProf} ${p.lastNameProf}`.trim(),
             speciality: SPECIALITY_LABELS[p.specialityProf],
             note: p.typeProf === 'Doctor' ? 'Médico tratante' : 'Terapeuta',
+            image: p.imageProf,
           })),
         );
       },
       error: () => {
-        /* sin sesión: se mantiene el equipo de respaldo */
+        /* falla la petición: se mantiene el equipo de respaldo */
       },
     });
   }

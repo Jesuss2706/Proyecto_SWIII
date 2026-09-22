@@ -12,7 +12,6 @@ import {
   STATUS_LABELS,
   professionalFullName,
 } from '../../core/models';
-
 import { asList, byTimeAsc, formatDate, formatTime, todayISO } from '../../core/utils';
 
 interface AppointmentRow extends Appointment {
@@ -60,10 +59,9 @@ export class AgendaProfesionalComponent {
     };
   });
 
-  protected readonly selectedProfessional = computed(
-    () => this.professionals().find((p) => p.codProf === this.codProf()) ?? null,
+  protected readonly selectedProfessional = computed(() =>
+    this.professionals().find((p) => p.codProf === this.codProf()) ?? null,
   );
-
 
   constructor() {
     this.people.listProfessionals().subscribe({
@@ -95,9 +93,7 @@ export class AgendaProfesionalComponent {
         this.rows.set([]);
         this.loading.set(false);
         this.searched.set(true);
-        this.error.set(
-          'La búsqueda falló. Revisa la conexión con el servidor e inténtalo otra vez.',
-        );
+        this.error.set('La búsqueda falló. Revisa la conexión con el servidor e inténtalo otra vez.');
       },
     });
   }
@@ -154,19 +150,17 @@ export class AgendaProfesionalComponent {
 
   protected badgeClass(s: AppointmentStatus): string {
     switch (s) {
-      case 'Scheduled':
-        return 'pa-badge pa-badge-scheduled';
-      case 'Completed':
-        return 'pa-badge pa-badge-completed';
-      case 'Cancelled':
-        return 'pa-badge pa-badge-cancelled';
-      default:
-        return 'pa-badge pa-badge-rescheduled';
+      case 'Scheduled': return 'pa-badge pa-badge-scheduled';
+      case 'Completed': return 'pa-badge pa-badge-completed';
+      case 'Cancelled': return 'pa-badge pa-badge-cancelled';
+      default: return 'pa-badge pa-badge-rescheduled';
     }
   }
 
   private patchRow(codApp: number, statusApp: AppointmentStatus) {
-    this.rows.update((rows) => rows.map((r) => (r.codApp === codApp ? { ...r, statusApp } : r)));
+    this.rows.update((rows) =>
+      rows.map((r) => (r.codApp === codApp ? { ...r, statusApp } : r)),
+    );
   }
 
   /** Resuelve el nombre del paciente de cada fila; el endpoint solo devuelve codPatient. */
@@ -181,9 +175,7 @@ export class AgendaProfesionalComponent {
           this.patientCache.set(cod, p);
           this.applyPatient(cod, p);
         },
-        error: () => {
-          /* la fila conserva el guion */
-        },
+        error: () => { /* la fila conserva el guion */ },
       });
     }
 
