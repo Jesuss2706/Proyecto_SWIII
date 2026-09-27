@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HeroComponent } from '../../shared/hero/hero.component';
+import { CalendarPickerComponent } from '../../shared/calendar-picker/calendar-picker.component';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { PeopleService } from '../../core/services/people.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -20,7 +21,7 @@ type Step = 1 | 2 | 3;
  */
 @Component({
   selector: 'app-agendar',
-  imports: [ReactiveFormsModule, RouterLink, HeroComponent],
+  imports: [ReactiveFormsModule, RouterLink, HeroComponent, CalendarPickerComponent],
   templateUrl: './agendar.component.html',
   styleUrl: './agendar.component.css',
 })
@@ -70,6 +71,14 @@ export class AgendarComponent {
   protected readonly minDate = this.settings.minBookingDate();
   protected readonly maxDate = this.settings.maxBookingDate();
 
+  /**
+   * Un usuario con rol 'Patient' (usuario normal) solo puede agendar citas
+   * para su propia cédula. Agendadores, profesionales y admins sí pueden
+   * agendar a nombre de cualquier persona. El backend valida esto de nuevo
+   * en appointment.service.js, esto solo bloquea la edición en el formulario.
+   */
+  protected readonly isSelfOnly = computed(() => this.auth.hasRole('Patient'));
+
   /** Agrupa las franjas por profesional para que el paciente elija con contexto. */
   protected readonly slotsByProfessional = computed(() => {
     const groups = new Map<number, { name: string; speciality: Speciality; slots: Slot[] }>();
@@ -92,6 +101,15 @@ export class AgendarComponent {
     this.patientForm.controls.dateBirthPatient.valueChanges.subscribe((v) =>
       this.age.set(this.calcAge(v)),
     );
+
+    // Usuario normal: fijamos la cédula a la suya, bloqueamos el campo para
+    // que no pueda escribir otra, y disparamos la búsqueda automáticamente.
+    if (this.isSelfOnly()) {
+      const ownCedula = String(this.auth.user()?.cedUser ?? '');
+      this.cedula.set(ownCedula);
+      this.patientForm.controls.idPatient.disable();
+      if (ownCedula) this.lookup();
+    }
   }
 
   // ================= Paso 1 =================
@@ -160,6 +178,10 @@ export class AgendarComponent {
   }
 
   skipLookup() {
+    // Un usuario normal no puede saltarse la verificación: siempre debe
+    // quedar amarrado a su propia cédula.
+    if (this.isSelfOnly()) return;
+
     this.patient.set(null);
     this.isReturning.set(false);
     this.notice.set(null);
@@ -240,6 +262,12 @@ export class AgendarComponent {
     this.selectedSlot.set(slot);
   }
 
+  /** Se dispara cuando el usuario elige un día en el calendario visual (paso 3). */
+  onDatePick(dateStr: string) {
+    this.date.set(dateStr);
+    this.loadSlots();
+  }
+
   confirm() {
     const slot = this.selectedSlot();
     const patient = this.patient();
@@ -290,9 +318,18 @@ export class AgendarComponent {
     this.slots.set([]);
     this.patient.set(null);
     this.patientForm.reset();
-    this.cedula.set('');
     this.notice.set(null);
-    this.step.set(1);
+
+    if (this.isSelfOnly()) {
+      const ownCedula = String(this.auth.user()?.cedUser ?? '');
+      this.cedula.set(ownCedula);
+      this.patientForm.controls.idPatient.disable();
+      this.step.set(1);
+      if (ownCedula) this.lookup();
+    } else {
+      this.cedula.set('');
+      this.step.set(1);
+    }
   }
 
   // ---- helpers de plantilla ----

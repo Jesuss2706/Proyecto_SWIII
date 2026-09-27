@@ -42,11 +42,18 @@
               tus datos se cargan automáticamente.
             </p>
 
+            @if (isSelfOnly()) {
+              <div class="alert alert-info" role="status">
+                <i class="bi bi-info-circle me-1"></i>
+                Solo puedes agendar citas para tu propia cédula.
+              </div>
+            }
+
             <label class="form-label" for="ced">Número de cédula</label>
             <div class="input-group mb-2">
               <input id="ced" class="form-control" inputmode="numeric" placeholder="Ej: 1 234 567 890"
                      [value]="cedula()" (input)="cedula.set($any($event.target).value)"
-                     (keyup.enter)="lookup()">
+                     (keyup.enter)="lookup()" [readonly]="isSelfOnly()">
               <button class="btn btn-pa-dark" type="button" (click)="lookup()" [disabled]="busy()">
                 @if (busy()) {
                   <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
@@ -57,9 +64,11 @@
             </div>
             <p class="form-text mb-4">Solo números, sin puntos ni espacios.</p>
 
-            <button class="btn btn-link p-0 pa-muted text-decoration-none" type="button" (click)="skipLookup()">
-              Prefiero llenar mis datos manualmente
-            </button>
+            @if (!isSelfOnly()) {
+              <button class="btn btn-link p-0 pa-muted text-decoration-none" type="button" (click)="skipLookup()">
+                Prefiero llenar mis datos manualmente
+              </button>
+            }
           </div>
         }
 
@@ -99,7 +108,10 @@
               <div class="col-12 col-md-6">
                 <label class="form-label" for="p-cedula">Número de cédula *</label>
                 <input id="p-cedula" class="form-control" inputmode="numeric" formControlName="idPatient"
-                       [class.is-invalid]="invalid('idPatient')">
+                       [class.is-invalid]="invalid('idPatient')" [readonly]="isSelfOnly()">
+                @if (isSelfOnly()) {
+                  <p class="form-text mb-0">Solo puedes agendar para tu propia cédula.</p>
+                }
                 <div class="invalid-feedback">Entre 6 y 12 dígitos, sin puntos.</div>
               </div>
 
@@ -197,7 +209,7 @@
               <h2 class="pa-display pa-step-title mb-4">Elige tu horario</h2>
 
               <div class="row g-3 mb-4">
-                <div class="col-12 col-md-7">
+                <div class="col-12">
                   <label class="form-label" for="s-esp">Especialidad</label>
                   <select id="s-esp" class="form-select"
                           [value]="speciality()"
@@ -209,11 +221,15 @@
                   </select>
                 </div>
 
-                <div class="col-12 col-md-5">
-                  <label class="form-label" for="s-fecha">Fecha</label>
-                  <input id="s-fecha" type="date" class="form-control"
-                         [value]="date()" [min]="minDate" [max]="maxDate"
-                         (change)="date.set($any($event.target).value); loadSlots()">
+                <div class="col-12">
+                  <label class="form-label" id="s-fecha-label">Fecha</label>
+                  <app-calendar-picker
+                    [selected]="date()"
+                    [min]="minDate"
+                    [max]="maxDate"
+                    [blockWeekends]="settings.settings().blockWeekends"
+                    (dateChange)="onDatePick($event)"
+                    aria-labelledby="s-fecha-label" />
                   <p class="form-text mb-0">
                     Puedes reservar hasta {{ settings.settings().bookingWindowWeeks }} semanas hacia adelante.
                   </p>
@@ -252,6 +268,16 @@
               }
 
               <hr class="pa-divider my-4">
+
+              @if (error()) {
+                <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                  <div>
+                    <p class="fw-semibold mb-1">No se pudo crear la cita</p>
+                    <p class="mb-0">{{ error() }}</p>
+                  </div>
+                </div>
+              }
 
               <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                 @if (selectedSlot(); as s) {

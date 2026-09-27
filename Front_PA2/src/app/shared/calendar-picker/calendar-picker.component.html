@@ -1,0 +1,40 @@
+<div class="pa-calendar">
+  <div class="pa-calendar-head">
+    <button type="button" class="pa-calendar-nav" (click)="prevMonth()" [disabled]="!canGoPrev()"
+            aria-label="Mes anterior">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <span class="pa-calendar-label">{{ monthLabel() }}</span>
+    <button type="button" class="pa-calendar-nav" (click)="nextMonth()" [disabled]="!canGoNext()"
+            aria-label="Mes siguiente">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="pa-calendar-weekdays" aria-hidden="true">
+    @for (w of weekdayLabels; track w) {
+      <span>{{ w }}</span>
+    }
+  </div>
+
+  <div class="pa-calendar-grid" role="grid">
+    @for (week of weeks(); track $index) {
+      @for (cell of week; track cell?.dateStr ?? $index) {
+        @if (cell) {
+          <button type="button" class="pa-calendar-day"
+                  [class.is-selected]="cell.dateStr === selected"
+                  [class.is-today]="cell.isToday"
+                  [class.is-weekend]="cell.isWeekend"
+                  [disabled]="cell.disabled"
+                  [attr.aria-pressed]="cell.dateStr === selected"
+                  [attr.aria-label]="cell.dateStr"
+                  (click)="select(cell)">
+            {{ cell.day }}
+          </button>
+        } @else {
+          <span class="pa-calendar-day pa-calendar-day--empty" aria-hidden="true"></span>
+        }
+      }
+    }
+  </div>
+</div>
