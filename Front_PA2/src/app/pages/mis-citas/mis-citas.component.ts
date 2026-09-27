@@ -22,6 +22,7 @@ export class MisCitasComponent {
   protected readonly rows = signal<Appointment[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly appToCancel = signal<Appointment | null>(null);
 
   constructor() {
     const ced = this.auth.user()?.cedUser;
@@ -52,13 +53,25 @@ export class MisCitasComponent {
     });
   }
 
-  cancel(app: Appointment) {
+  askCancel(app: Appointment) {
+    this.appToCancel.set(app);
+  }
+
+  confirmCancel() {
+    const app = this.appToCancel();
+    if (!app) return;
+
     this.appointments.updateStatus(app.codApp, 'CANCELADA').subscribe({
-      next: () =>
+      next: () => {
         this.rows.update((rows) =>
           rows.map((r) => (r.codApp === app.codApp ? { ...r, statusApp: 'Cancelled' as AppointmentStatus } : r)),
-        ),
-      error: () => this.error.set('No se pudo cancelar la cita.'),
+        );
+        this.appToCancel.set(null);
+      },
+      error: () => {
+        this.error.set('No se pudo cancelar la cita.');
+        this.appToCancel.set(null);
+      },
     });
   }
 
