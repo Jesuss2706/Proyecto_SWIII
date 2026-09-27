@@ -138,8 +138,17 @@
               <div class="col-8 col-md-4">
                 <label class="form-label" for="p-fnac">Fecha de nacimiento *</label>
                 <input id="p-fnac" type="date" class="form-control" formControlName="dateBirthPatient"
-                       [class.is-invalid]="invalid('dateBirthPatient')" [max]="minDate">
-                <div class="invalid-feedback">Indica tu fecha de nacimiento.</div>
+                      [class.is-invalid]="invalid('dateBirthPatient')" [max]="minDate">
+
+                @if (patientForm.get('dateBirthPatient')?.errors?.['required']) {
+                  <div class="invalid-feedback">Indica tu fecha de nacimiento.</div>
+                }
+                @if (patientForm.get('dateBirthPatient')?.errors?.['invalidDate']) {
+                  <div class="invalid-feedback">Esa fecha de nacimiento no es válida.</div>
+                }
+                @if (patientForm.get('dateBirthPatient')?.errors?.['underage']) {
+                  <div class="invalid-feedback">Debes ser mayor de edad para registrarte.</div>
+                }
               </div>
 
               <div class="col-4 col-md-2">

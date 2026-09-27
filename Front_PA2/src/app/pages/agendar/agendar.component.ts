@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { CalendarPickerComponent } from '../../shared/calendar-picker/calendar-picker.component';
@@ -52,7 +52,7 @@ export class AgendarComponent {
     secondLastNamePatient: [''],
     genderPatient: ['', Validators.required],
     phonePatient: ['', [Validators.required, Validators.pattern(/^3\d{9}$/)]],
-    dateBirthPatient: ['', Validators.required],
+    dateBirthPatient: ['', [Validators.required, this.birthDateValidator()]],
     descApp: [''],
   });
 
@@ -352,4 +352,16 @@ export class AgendarComponent {
     if (before) age--;
     return age >= 0 && age < 130 ? age : null;
   }
+
+  private birthDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const iso = control.value as string;
+      if (!iso) return null;
+      const age = this.calcAge(iso);
+      if (age === null) return { invalidDate: true };
+      if (age < 18) return { underage: true };
+      return null;
+    };
+  }
+
 }
