@@ -1,0 +1,23 @@
+.pa-wa {
+  position: fixed;
+  bottom: 1.25rem;
+  right: calc(1.25rem + 56px + .75rem);
+  z-index: 1050;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  font-size: 1.6rem;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(19, 36, 52, .3);
+  transition: background .15s, transform .15s;
+}
+.pa-wa:hover { background: #1ebe5b; color: #fff; transform: translateY(-2px); }
+.pa-wa:focus-visible { outline: 3px solid var(--pa-gold); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-wa { transition: none; }
+}
