@@ -1,0 +1,60 @@
+<div class="pa-chat" (keydown.escape)="open.set(false)">
+  @if (open()) {
+    <section class="pa-chat-panel" role="dialog" aria-label="Asistente de preguntas frecuentes">
+      <header class="pa-chat-header">
+        <div>
+          <p class="pa-chat-title mb-0">Asistente Piedra Azul</p>
+          <p class="pa-chat-sub mb-0">Preguntas frecuentes</p>
+        </div>
+        <div class="d-flex gap-1">
+          <button type="button" class="pa-chat-icon" aria-label="Reiniciar conversación" title="Reiniciar" (click)="reset()">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+          <button type="button" class="pa-chat-icon" aria-label="Cerrar chat" (click)="open.set(false)">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </header>
+
+      <div #body class="pa-chat-body" aria-live="polite">
+        @for (m of messages(); track $index) {
+          <div class="pa-msg" [class.pa-msg-user]="m.from === 'user'" [class.pa-msg-bot]="m.from === 'bot'">
+            <p class="pa-msg-text mb-0">{{ m.text }}</p>
+            @if (m.link; as l) {
+              @if (!l.guestOnly || !auth.isLoggedIn()) {
+                <a class="btn btn-sm btn-pa mt-2" [routerLink]="l.route" [fragment]="l.fragment" (click)="open.set(false)">
+                  {{ l.label }}
+                </a>
+              }
+            }
+          </div>
+        }
+
+        @if (typing()) {
+          <div class="pa-msg pa-msg-bot pa-typing" aria-label="Escribiendo">
+            <span></span><span></span><span></span>
+          </div>
+        }
+
+        <div class="pa-chat-options">
+          <p class="pa-chat-hint mb-2">Elige una pregunta:</p>
+          @for (f of faqs; track f.id) {
+            <button type="button" class="pa-chat-option" [disabled]="typing()" (click)="ask(f)">
+              {{ f.question }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <button
+    type="button"
+    class="pa-chat-fab"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="open() ? 'Cerrar chat de ayuda' : 'Abrir chat de ayuda'"
+    (click)="toggle()"
+  >
+    <i class="bi" [class.bi-chat-dots-fill]="!open()" [class.bi-x-lg]="open()"></i>
+  </button>
+</div>

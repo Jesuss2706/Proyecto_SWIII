@@ -13,3 +13,7 @@
 </main>
 
 <app-footer />
+
+@if (!auth.hasRole('Admin', 'Professional', 'Scheduler')) {
+  <app-chatbot />
+}
