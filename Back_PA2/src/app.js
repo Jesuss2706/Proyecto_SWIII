@@ -18,11 +18,11 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas públicas
-app.use('/api/auth', auth.routes);
 app.use('/api/public/people', people.publicRoutes);
 
 // Rutas protegidas: todo lo que esté detrás de authMiddleware
-// requiere un JWT válido, reemplazando lo que antes hacía el api-gateway.
+// requiere un access token válido emitido por Keycloak.
+app.use('/api/auth', authMiddleware, auth.routes);
 app.use('/api/people', authMiddleware, people.routes);
 app.use('/api/appointments', authMiddleware, appointment.routes);
 

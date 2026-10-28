@@ -18,10 +18,8 @@ const User = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    passUser: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+    // Ya no se usan: la contraseña vive en Keycloak. Se dejan opcionales para no romper filas viejas.
+    passUser: DataTypes.STRING,
     nameUser: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -41,14 +39,8 @@ const User = sequelize.define(
       type: DataTypes.ENUM(...ROLES),
       allowNull: false,
     },
-    securityQuestion: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    securityAnswer: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+    securityQuestion: DataTypes.STRING,
+    securityAnswer: DataTypes.STRING,
   },
   {
     tableName: 'users',

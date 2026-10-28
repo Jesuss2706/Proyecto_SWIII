@@ -9,8 +9,9 @@ module.exports = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   },
-  jwt: {
-    secret: process.env.JWT_SECRET,
-    expiresIn: process.env.JWT_EXPIRES_IN || '8h',
+  keycloak: {
+    url: process.env.KEYCLOAK_URL || 'http://localhost:8080',
+    realm: process.env.KEYCLOAK_REALM || 'piedraazul',
+    clientId: process.env.KEYCLOAK_CLIENT_ID || 'piedraazul-front',
   },
 };

@@ -1,31 +1,10 @@
 const authService = require('./auth.service');
-const User = require('./auth.model');
-const { required, oneOf } = require('../../shared/validate');
+const { required } = require('../../shared/validate');
 const { BadRequestError } = require('../../shared/errors');
 
-async function login(req, res, next) {
+async function me(req, res, next) {
   try {
-    const errors = required(req.body, ['cedUser', 'password']);
-    if (errors.length) throw new BadRequestError(errors.join(', '));
-
-    const result = await authService.login(req.body);
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function register(req, res, next) {
-  try {
-    const errors = [
-      ...required(req.body, ['cedUser', 'passUser', 'nameUser', 'lastNameUser', 'roleUser', 'securityQuestion', 'securityAnswer']),
-    ];
-    const roleError = oneOf(req.body.roleUser, User.ROLES, 'roleUser');
-    if (roleError) errors.push(roleError);
-    if (errors.length) throw new BadRequestError(errors.join(', '));
-
-    const user = await authService.register(req.body);
-    res.status(201).location(`/api/auth/users/${user.codUser}`).json(user);
+    res.json(await authService.syncFromToken(req.user));
   } catch (err) {
     next(err);
   }
@@ -86,4 +65,4 @@ async function deactivate(req, res, next) {
   }
 }
 
-module.exports = { login, register, findByRole, findByCedula, findByCodigo, update, deactivate };
+module.exports = { me, findByRole, findByCedula, findByCodigo, update, deactivate };
