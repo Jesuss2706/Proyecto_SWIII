@@ -6,3 +6,22 @@
 }
 
 .pa-appt-time { font-size: .85rem; color: var(--pa-gold-600); font-weight: 600; }
+
+/* confirmación de cancelacion de cita */
+.pa-modal-backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.pa-modal-content {
+  border: none;
+  border-radius: 0.75rem;
+}
+
+.pa-modal-title {
+  font-family: "Newsreader", Georgia, serif;
+  color: var(--pa-navy-900);
+}
+
+.pa-modal-body {
+  color: var(--pa-navy-900);
+}

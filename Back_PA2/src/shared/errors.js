@@ -23,4 +23,10 @@ class UnauthorizedError extends AppError {
   }
 }
 
-module.exports = { AppError, NotFoundError, BadRequestError, UnauthorizedError };
+class ForbiddenError extends AppError {
+  constructor(message = 'No tienes permisos para esta acción') {
+    super(message, 403);
+  }
+}
+
+module.exports = { AppError, NotFoundError, BadRequestError, UnauthorizedError, ForbiddenError };

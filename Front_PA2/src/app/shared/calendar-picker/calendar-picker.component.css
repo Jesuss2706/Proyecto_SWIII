@@ -1,0 +1,92 @@
+.pa-calendar {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line);
+  border-radius: .75rem;
+  padding: 1rem;
+}
+
+.pa-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .85rem;
+}
+
+.pa-calendar-label {
+  font-weight: 600;
+  color: var(--pa-navy-900);
+  text-transform: capitalize;
+  font-size: .95rem;
+}
+
+.pa-calendar-nav {
+  border: 1px solid var(--pa-line);
+  background: var(--pa-surface);
+  color: var(--pa-navy-900);
+  border-radius: .4rem;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  transition: border-color .15s ease;
+}
+.pa-calendar-nav:not(:disabled):hover { border-color: var(--pa-navy-500); }
+.pa-calendar-nav:disabled { opacity: .35; cursor: not-allowed; }
+
+.pa-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--pa-muted);
+  margin-bottom: .4rem;
+}
+
+.pa-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: .3rem;
+}
+
+.pa-calendar-day {
+  aspect-ratio: 1 / 1;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--pa-ink);
+  border-radius: .5rem;
+  font-size: .85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  place-items: center;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+
+.pa-calendar-day:not(:disabled):hover { border-color: var(--pa-navy-500); }
+
+.pa-calendar-day.is-today {
+  border-color: var(--pa-gold);
+  color: var(--pa-gold-600);
+}
+
+.pa-calendar-day.is-weekend:not(.is-selected) { color: var(--pa-muted); }
+
+.pa-calendar-day.is-selected {
+  background: var(--pa-navy-900);
+  border-color: var(--pa-navy-900);
+  color: #fff;
+}
+
+.pa-calendar-day:disabled {
+  opacity: .32;
+  cursor: not-allowed;
+}
+
+.pa-calendar-day--empty { visibility: hidden; }
+
+@media (max-width: 380px) {
+  .pa-calendar-day { font-size: .78rem; }
+}

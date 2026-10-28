@@ -5,7 +5,7 @@ const { generateSlotsForProfessional, buildBusyKeys } = require('./slot-generato
 const dateUtils = require('./date-utils');
 const festivos = require('./festivos');
 const exportService = require('./export/export.service');
-const { BadRequestError, NotFoundError } = require('../../shared/errors');
+const { BadRequestError, NotFoundError, ForbiddenError } = require('../../shared/errors');
 
 function canReschedule(status) {
   return status !== 'Cancelled' && status !== 'Completed';
@@ -17,9 +17,16 @@ function canComplete(status) {
   return status !== 'Cancelled';
 }
 
-async function create(dto) {
+async function create(dto, requester) {
   const patient = await people.getPatientByCod(dto.codPatient);
   if (!patient) throw new NotFoundError(`No existe el paciente con código: ${dto.codPatient}`);
+
+  // Un usuario con rol 'Patient' (usuario normal) solo puede agendar citas para
+  // su propia cédula. Agendadores, profesionales y admins pueden agendar para
+  // cualquier persona.
+  if (requester && requester.role === 'Patient' && Number(patient.idPatient) !== Number(requester.sub)) {
+    throw new ForbiddenError('Solo puedes agendar citas para tu propia cédula.');
+  }
 
   const professional = await people.getActiveProfessionalByCod(dto.codProf);
   if (!professional) throw new NotFoundError(`No existe el profesional con código: ${dto.codProf}`);

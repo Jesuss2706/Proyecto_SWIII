@@ -4,6 +4,11 @@ const User = require('./auth.model');
 const env = require('../../config/env');
 const { BadRequestError, UnauthorizedError, NotFoundError } = require('../../shared/errors');
 
+// Estas rutas de auth son públicas (sin authMiddleware), así que las consultas
+// de solo lectura NUNCA deben incluir el hash de la contraseña ni las
+// preguntas/respuestas de seguridad.
+const PUBLIC_ATTRS = { exclude: ['passUser', 'securityQuestion', 'securityAnswer'] };
+
 async function register(dto) {
   const exists = await User.findOne({ where: { cedUser: dto.cedUser } });
   if (exists) {
@@ -86,15 +91,15 @@ async function login({ cedUser, password }) {
 }
 
 async function findByRole(role) {
-  return User.findAll({ where: { roleUser: role } });
+  return User.findAll({ where: { roleUser: role }, attributes: PUBLIC_ATTRS });
 }
 
 async function findByCedula(cedUser) {
-  return User.findOne({ where: { cedUser } });
+  return User.findOne({ where: { cedUser }, attributes: PUBLIC_ATTRS });
 }
 
 async function findByCodigoUser(codUser) {
-  return User.findByPk(codUser);
+  return User.findByPk(codUser, { attributes: PUBLIC_ATTRS });
 }
 
 async function update(id, dto) {

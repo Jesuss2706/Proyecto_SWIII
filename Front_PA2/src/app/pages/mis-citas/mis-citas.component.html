@@ -33,7 +33,7 @@
                   </div>
                   <div class="col-6 col-md-2 text-end">
                     @if (a.statusApp === 'Scheduled') {
-                      <button class="btn btn-sm btn-pa-outline" type="button" (click)="cancel(a)">Cancelar</button>
+                      <button class="btn btn-sm btn-pa-outline" type="button" (click)="askCancel(a)">Cancelar</button>
                     }
                   </div>
                 </div>
@@ -52,3 +52,23 @@
     </div>
   </div>
 </section>
+
+@if (appToCancel(); as app) {
+  <div class="modal d-block pa-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content pa-modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title pa-modal-title">Cancelar cita</h5>
+          <button type="button" class="btn-close" (click)="appToCancel.set(null)"></button>
+        </div>
+        <div class="modal-body pa-modal-body">
+          ¿Estás seguro de que quieres cancelar tu cita del {{ prettyDate(app.dateApp) }} a las {{ time(app.timeApp) }}?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-pa-outline" (click)="appToCancel.set(null)">No, volver</button>
+          <button type="button" class="btn btn-sm btn-pa" (click)="confirmCancel()">Sí, cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

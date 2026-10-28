@@ -48,6 +48,12 @@ const Professional = sequelize.define(
     },
     // Ej: "MONDAY,WEDNESDAY" — igual que el original, se parsea en el servicio
     unavailableDays: DataTypes.STRING,
+    // URL de la foto del profesional (opcional). Si es null/vacío, el front
+    // muestra un avatar por defecto en su lugar.
+    imageProf: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: 'professionals',

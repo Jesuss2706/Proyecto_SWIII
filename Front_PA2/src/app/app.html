@@ -13,3 +13,8 @@
 </main>
 
 <app-footer />
+
+@if (!auth.hasRole('Admin', 'Professional', 'Scheduler')) {
+  <app-chatbot />
+  <app-whatsapp-button />
+}

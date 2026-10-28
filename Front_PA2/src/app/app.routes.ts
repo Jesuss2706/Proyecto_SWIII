@@ -18,8 +18,9 @@ export const routes: Routes = [
     title: 'Crear cuenta — Piedra Azul',
   },
   {
-    // Requisito 2
+    // Requisito 2 — hay que estar logueado para agendar.
     path: 'agendar',
+    canActivate: [authGuard],
     loadComponent: () => import('./pages/agendar/agendar.component').then((m) => m.AgendarComponent),
     title: 'Agendar cita — Piedra Azul',
   },

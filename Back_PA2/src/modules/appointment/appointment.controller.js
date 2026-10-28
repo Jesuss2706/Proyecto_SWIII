@@ -130,7 +130,7 @@ async function create(req, res, next) {
     const errors = required(req.body, ['codProf', 'codPatient', 'dateApp', 'timeApp']);
     if (errors.length) throw new BadRequestError(errors.join(', '));
 
-    const appointment = await appointmentService.create(req.body);
+    const appointment = await appointmentService.create(req.body, req.user);
     res.status(201).location(`/api/appointments/${appointment.codApp}`).json(appointment);
   } catch (err) {
     next(err);

@@ -10,6 +10,7 @@ import {
   Professional,
   SPECIALITY_LABELS,
   STATUS_LABELS,
+  professionalFullName,
 } from '../../core/models';
 import { asList, byTimeAsc, formatDate, formatTime, todayISO } from '../../core/utils';
 
@@ -139,7 +140,7 @@ export class AgendaProfesionalComponent {
 
   // ---- helpers de plantilla ----
   protected label(p: Professional): string {
-    const nombre = `${p.userRef?.nameUser ?? ''} ${p.userRef?.lastNameUser ?? ''}`.trim();
+    const nombre = professionalFullName(p);
     return `${nombre || 'Profesional ' + p.codProf} — ${SPECIALITY_LABELS[p.specialityProf]}`;
   }
 

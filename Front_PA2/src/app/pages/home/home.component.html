@@ -82,17 +82,55 @@
       <h2 class="pa-display pa-section-title mb-0">Profesionales de Piedra Azul</h2>
     </div>
 
-    <div class="row g-3 g-lg-4">
-      @for (m of team(); track m.name) {
-        <div class="col-6 col-lg-3">
-          <article class="text-center">
-            <div class="pa-avatar mb-3" aria-hidden="true">
-              <i class="bi bi-person-fill"></i>
+    <div id="pa-team-carousel" class="carousel slide" data-bs-touch="true">
+      <div class="carousel-inner">
+        @for (slide of teamSlides(); track $index) {
+          <div class="carousel-item" [class.active]="$index === 0">
+            <div class="row g-3 g-lg-4 justify-content-center">
+              @for (m of slide; track m.name) {
+                <div class="col-6 col-lg-3">
+                  <article class="text-center">
+                    @if (m.image) {
+                      <div class="pa-avatar pa-avatar-photo mb-3">
+                        <img [src]="m.image" [alt]="m.name" loading="lazy" />
+                      </div>
+                    } @else {
+                      <div class="pa-avatar mb-3" aria-hidden="true">
+                        <i class="bi bi-person-fill"></i>
+                      </div>
+                    }
+                    <h3 class="pa-member-name mb-1">{{ m.name }}</h3>
+                    <p class="pa-member-speciality mb-0">{{ m.speciality }}</p>
+                    <p class="pa-member-note mb-0">{{ m.note }}</p>
+                  </article>
+                </div>
+              }
             </div>
-            <h3 class="pa-member-name mb-1">{{ m.name }}</h3>
-            <p class="pa-member-speciality mb-0">{{ m.speciality }}</p>
-            <p class="pa-member-note mb-0">{{ m.note }}</p>
-          </article>
+          </div>
+        }
+      </div>
+
+      @if (teamSlides().length > 1) {
+        <button class="pa-carousel-btn pa-carousel-prev" type="button" data-bs-target="#pa-team-carousel" data-bs-slide="prev">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="pa-carousel-btn pa-carousel-next" type="button" data-bs-target="#pa-team-carousel" data-bs-slide="next">
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+          <span class="visually-hidden">Siguiente</span>
+        </button>
+
+        <div class="pa-carousel-dots">
+          @for (slide of teamSlides(); track $index) {
+            <button
+              type="button"
+              data-bs-target="#pa-team-carousel"
+              [attr.data-bs-slide-to]="$index"
+              [class.active]="$index === 0"
+              [attr.aria-current]="$index === 0 ? 'true' : null"
+              [attr.aria-label]="'Grupo ' + ($index + 1)"
+            ></button>
+          }
         </div>
       }
     </div>

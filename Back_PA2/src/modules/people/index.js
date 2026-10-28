@@ -1,4 +1,5 @@
 const routes = require('./people.routes');
+const publicRoutes = require('./people.public.routes');
 const facade = require('./people.facade');
 const enums = require('./people.enums');
 
@@ -6,4 +7,4 @@ const enums = require('./people.enums');
 // directamente — solo pueden usar lo que se expone aquí. Como todo vive en el
 // mismo proceso, no hace falta duplicar estos datos vía eventos: una llamada
 // directa a la fachada siempre trae el dato más reciente.
-module.exports = { routes, enums, ...facade };
+module.exports = { routes, publicRoutes, enums, ...facade };
