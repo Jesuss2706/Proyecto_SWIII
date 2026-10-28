@@ -47,6 +47,8 @@ async function syncFromToken(claims) {
   };
 }
 
+const keycloakAdmin = require('./keycloak.admin');   // junto a los otros require
+
 async function findByRole(role) {
   return User.findAll({ where: { roleUser: role }, attributes: PUBLIC_ATTRS });
 }
@@ -81,11 +83,46 @@ async function deactivate(id) {
   await user.save();
 }
 
+// Registro público de pacientes: el formulario de Angular llama aquí y el backend
+// crea la cuenta en Keycloak (contraseña incluida) y la copia local en auth.users.
+async function register(dto) {
+  if (!/^\d{6,12}$/.test(String(dto.cedUser))) {
+    throw new BadRequestError('La cédula debe tener entre 6 y 12 dígitos');
+  }
+  if (String(dto.passUser).length < 8) {
+    throw new BadRequestError('La contraseña debe tener mínimo 8 caracteres');
+  }
+  if (await User.findOne({ where: { cedUser: dto.cedUser } })) {
+    throw new BadRequestError('Ya existe un usuario con esa cédula');
+  }
+
+  // El rol Patient lo asigna Keycloak por ser rol por defecto del realm.
+  await keycloakAdmin.createUser({
+    username: String(dto.cedUser),
+    email: dto.email,
+    firstName: dto.nameUser,
+    lastName: dto.lastNameUser,
+    password: dto.passUser,
+  });
+
+  const user = await User.create({
+    cedUser: dto.cedUser,
+    nameUser: dto.nameUser,
+    secondNameUser: dto.secondNameUser,
+    lastNameUser: dto.lastNameUser,
+    secondLastNameUser: dto.secondLastNameUser,
+    roleUser: 'Patient',
+  });
+  return user;
+}
+
 module.exports = {
   syncFromToken,
+  register,
   findByRole,
   findByCedula,
   findByCodigoUser,
   update,
   deactivate,
 };
+

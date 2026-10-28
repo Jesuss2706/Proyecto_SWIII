@@ -58,22 +58,10 @@
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label" for="r-preg">Pregunta de seguridad *</label>
-                  <select id="r-preg" class="form-select" formControlName="securityQuestion"
-                          [class.is-invalid]="invalid('securityQuestion')">
-                    <option value="">Selecciona una pregunta</option>
-                    @for (q of questions; track q) {
-                      <option [value]="q">{{ q }}</option>
-                    }
-                  </select>
-                  <div class="invalid-feedback">Selecciona una pregunta.</div>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label" for="r-resp">Respuesta *</label>
-                  <input id="r-resp" class="form-control" formControlName="securityAnswer"
-                         [class.is-invalid]="invalid('securityAnswer')">
-                  <div class="invalid-feedback">Escribe tu respuesta.</div>
+                  <label class="form-label" for="r-email">Correo electrónico *</label>
+                  <input id="r-email" type="email" class="form-control" autocomplete="email"
+                         formControlName="email" [class.is-invalid]="invalid('email')">
+                  <div class="invalid-feedback">Escribe un correo válido.</div>
                 </div>
               </div>
 

@@ -13,5 +13,8 @@ module.exports = {
     url: process.env.KEYCLOAK_URL || 'http://localhost:8080',
     realm: process.env.KEYCLOAK_REALM || 'piedraazul',
     clientId: process.env.KEYCLOAK_CLIENT_ID || 'piedraazul-front',
+    // Cliente confidencial del backend (service account) para crear usuarios
+    adminClientId: process.env.KEYCLOAK_ADMIN_CLIENT_ID || 'piedraazul-backend',
+    adminClientSecret: process.env.KEYCLOAK_ADMIN_CLIENT_SECRET,
   },
 };

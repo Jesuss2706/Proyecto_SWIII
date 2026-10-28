@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas públicas
+app.use('/api/public/auth', auth.publicRoutes);
 app.use('/api/public/people', people.publicRoutes);
 
 // Rutas protegidas: todo lo que esté detrás de authMiddleware

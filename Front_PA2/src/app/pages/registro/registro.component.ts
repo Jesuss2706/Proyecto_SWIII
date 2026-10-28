@@ -5,8 +5,8 @@ import { AuthService } from '../../core/services/auth.service';
 
 /**
  * Registro de la cuenta con la que el paciente inicia sesión.
- * POST /api/auth/register crea el usuario con rol 'Patient'; los datos clínicos
- * se capturan después, en el paso 2 de /agendar.
+ * POST /api/public/auth/register crea el usuario en Keycloak con rol 'Patient';
+ * los datos clínicos se capturan después, en el paso 2 de /agendar.
  */
 @Component({
   selector: 'app-registro',
@@ -19,22 +19,14 @@ export class RegistroComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  protected readonly questions = [
-    '¿Cuál es el nombre de tu primera mascota?',
-    '¿En qué ciudad naciste?',
-    '¿Cuál es el nombre de tu mejor amigo de la infancia?',
-    '¿Cuál fue tu primer colegio?',
-  ];
-
   protected readonly form = this.fb.nonNullable.group({
     cedUser: ['', [Validators.required, Validators.pattern(/^\d{6,12}$/)]],
     nameUser: ['', Validators.required],
     secondNameUser: [''],
     lastNameUser: ['', Validators.required],
     secondLastNameUser: [''],
+    email: ['', [Validators.required, Validators.email]],
     passUser: ['', [Validators.required, Validators.minLength(8)]],
-    securityQuestion: ['', Validators.required],
-    securityAnswer: ['', Validators.required],
   });
 
   protected readonly busy = signal(false);
@@ -53,9 +45,7 @@ export class RegistroComponent {
 
     const v = this.form.getRawValue();
 
-    this.auth
-      .register({ ...v, cedUser: Number(v.cedUser), roleUser: 'Patient' })
-      .subscribe({
+    this.auth.registerAccount({ ...v, cedUser: Number(v.cedUser) }).subscribe({
       next: () => {
         this.busy.set(false);
         this.done.set(true);

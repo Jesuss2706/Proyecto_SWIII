@@ -1,12 +1,16 @@
 jest.mock('../auth.model', () => ({
   findOne: jest.fn(),
   findOrCreate: jest.fn(),
+  create: jest.fn(),
   findByPk: jest.fn(),
   findAll: jest.fn(),
   ROLES: ['Professional', 'Admin', 'Patient', 'Scheduler'],
 }));
 
+jest.mock('../keycloak.admin', () => ({ createUser: jest.fn() }));
+
 const User = require('../auth.model');
+const keycloakAdmin = require('../keycloak.admin');
 const authService = require('../auth.service');
 const { BadRequestError, UnauthorizedError, NotFoundError } = require('../../../shared/errors');
 
@@ -56,6 +60,41 @@ describe('auth.service.syncFromToken', () => {
   it('lanza UnauthorizedError si el usuario local está inactivo', async () => {
     User.findOrCreate.mockResolvedValue([makeUser({ statusUser: 'Inactive' }), false]);
     await expect(authService.syncFromToken(claims)).rejects.toThrow(UnauthorizedError);
+  });
+});
+
+describe('auth.service.register', () => {
+  const dto = {
+    cedUser: 1061234567, passUser: 'secreto123', email: 'ana@correo.com',
+    nameUser: 'Ana', lastNameUser: 'Ruiz',
+  };
+
+  it('rechaza una cédula inválida', async () => {
+    await expect(authService.register({ ...dto, cedUser: 12 })).rejects.toThrow(BadRequestError);
+  });
+
+  it('rechaza una contraseña de menos de 8 caracteres', async () => {
+    await expect(authService.register({ ...dto, passUser: '123' })).rejects.toThrow(BadRequestError);
+  });
+
+  it('rechaza si la cédula ya existe localmente', async () => {
+    User.findOne.mockResolvedValue({ codUser: 1 });
+    await expect(authService.register(dto)).rejects.toThrow(BadRequestError);
+    expect(keycloakAdmin.createUser).not.toHaveBeenCalled();
+  });
+
+  it('crea el usuario en Keycloak y la copia local con rol Patient', async () => {
+    User.findOne.mockResolvedValue(null);
+    keycloakAdmin.createUser.mockResolvedValue(undefined);
+    User.create.mockResolvedValue({ codUser: 7 });
+
+    const result = await authService.register(dto);
+
+    expect(keycloakAdmin.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({ username: '1061234567', email: 'ana@correo.com', password: 'secreto123' })
+    );
+    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({ roleUser: 'Patient' }));
+    expect(result).toEqual({ codUser: 7 });
   });
 });
 

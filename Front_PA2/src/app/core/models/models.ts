@@ -59,15 +59,12 @@ export interface LoginResponse {
 export interface RegisterRequest {
   cedUser: number;
   passUser: string;
+  email: string;
   nameUser: string;
   secondNameUser?: string;
   lastNameUser: string;
   secondLastNameUser?: string;
-  roleUser: UserRole;
-  securityQuestion: string;
-  securityAnswer: string;
 }
-
 export interface Patient {
   codPatient: number;
   idPatient: number;
