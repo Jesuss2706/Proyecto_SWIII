@@ -70,3 +70,36 @@
 }
 
 .pa-preview-label { font-size: .82rem; color: var(--pa-muted); }
+
+
+
+/* ---------- Pestañas ---------- */
+.pa-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--pa-line);
+}
+.pa-tab {
+  border: 0;
+  background: transparent;
+  color: var(--pa-muted);
+  font-weight: 600;
+  font-size: .9rem;
+  padding: .7rem 1rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.pa-tab:hover { color: var(--pa-navy-900); }
+.pa-tab.is-on {
+  color: var(--pa-navy-900);
+  border-bottom-color: var(--pa-navy-900);
+}
+
+/* ---------- Listas de personas (altas) ---------- */
+.pa-person { padding: .6rem .75rem; border-radius: .55rem; }
+.pa-person + .pa-person { margin-top: .15rem; }
+.pa-person:hover { background: var(--pa-bg); }
+.pa-person-name { display: block; font-size: .9rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-person-meta { display: block; font-size: .78rem; color: var(--pa-muted); }

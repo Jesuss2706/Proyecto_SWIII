@@ -41,12 +41,6 @@
         }
         @if (auth.hasRole('Admin')) {
           <li class="nav-item">
-            <a class="nav-link" routerLink="/admin/profesionales" routerLinkActive="active" (click)="closeMenu()">Profesionales</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/admin/agendadores" routerLinkActive="active" (click)="closeMenu()">Agendadores</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" routerLink="/configuracion" routerLinkActive="active" (click)="closeMenu()">Configuración</a>
           </li>
         }
