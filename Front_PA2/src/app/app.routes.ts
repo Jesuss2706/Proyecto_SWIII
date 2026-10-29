@@ -48,5 +48,25 @@ export const routes: Routes = [
       import('./pages/admin-config/admin-config.component').then((m) => m.AdminConfigComponent),
     title: 'Configuración — Piedra Azul',
   },
+    {
+    // Admin: alta de profesionales
+    path: 'admin/profesionales',
+    canActivate: [roleGuard('Admin')],
+    loadComponent: () =>
+      import('./pages/admin-profesionales/admin-profesionales.component').then(
+        (m) => m.AdminProfesionalesComponent,
+      ),
+    title: 'Profesionales — Piedra Azul',
+  },
+  {
+    // Admin: alta de agendadores
+    path: 'admin/agendadores',
+    canActivate: [roleGuard('Admin')],
+    loadComponent: () =>
+      import('./pages/admin-agendadores/admin-agendadores.component').then(
+        (m) => m.AdminAgendadoresComponent,
+      ),
+    title: 'Agendadores — Piedra Azul',
+  },
   { path: '**', redirectTo: '' },
 ];

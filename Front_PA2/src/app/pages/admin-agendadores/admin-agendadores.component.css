@@ -1,0 +1,7 @@
+.pa-panel-title { font-size: 1rem; font-weight: 600; color: var(--pa-navy-900); }
+
+.pa-person { padding: .6rem .75rem; border-radius: .55rem; }
+.pa-person + .pa-person { margin-top: .15rem; }
+.pa-person:hover { background: var(--pa-bg); }
+.pa-person-name { display: block; font-size: .9rem; font-weight: 600; color: var(--pa-navy-900); }
+.pa-person-meta { display: block; font-size: .78rem; color: var(--pa-muted); }

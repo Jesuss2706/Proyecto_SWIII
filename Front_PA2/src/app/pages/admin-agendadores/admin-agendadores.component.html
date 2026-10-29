@@ -1,0 +1,107 @@
+<app-hero
+  variant="compact"
+  eyebrow="Administración"
+  subtitle="Crea las cuentas de las personas que gestionan la agenda de citas.">
+  Agendadores
+</app-hero>
+
+<section class="pa-section pt-4">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- ============ Formulario ============ -->
+      <div class="col-12 col-lg-7">
+        <div class="pa-card p-4 p-lg-5">
+          <h2 class="pa-panel-title mb-4">Nuevo agendador</h2>
+
+          @if (error()) {
+            <div class="alert alert-danger py-2 small" role="alert">{{ error() }}</div>
+          }
+          @if (success()) {
+            <div class="alert alert-success py-2 small" role="status">{{ success() }}</div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="s-nombre">Primer nombre *</label>
+                <input id="s-nombre" class="form-control" formControlName="nameUser"
+                       [class.is-invalid]="invalid('nameUser')">
+                <div class="invalid-feedback">Campo obligatorio.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="s-apellido">Primer apellido *</label>
+                <input id="s-apellido" class="form-control" formControlName="lastNameUser"
+                       [class.is-invalid]="invalid('lastNameUser')">
+                <div class="invalid-feedback">Campo obligatorio.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="s-nombre2">Segundo nombre</label>
+                <input id="s-nombre2" class="form-control" formControlName="secondNameUser">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="s-apellido2">Segundo apellido</label>
+                <input id="s-apellido2" class="form-control" formControlName="secondLastNameUser">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="s-ced">Número de cédula *</label>
+                <input id="s-ced" class="form-control" inputmode="numeric" formControlName="cedUser"
+                       [class.is-invalid]="invalid('cedUser')">
+                <div class="invalid-feedback">Entre 6 y 12 dígitos.</div>
+                <div class="form-text">Será su usuario para iniciar sesión.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="s-email">Correo electrónico *</label>
+                <input id="s-email" type="email" class="form-control" autocomplete="off"
+                       formControlName="email" [class.is-invalid]="invalid('email')">
+                <div class="invalid-feedback">Escribe un correo válido.</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="s-pass">Contraseña inicial *</label>
+                <input id="s-pass" class="form-control" autocomplete="off"
+                       formControlName="passUser" [class.is-invalid]="invalid('passUser')">
+                <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                <div class="form-text">Anótala: se la debes entregar a la persona.</div>
+              </div>
+            </div>
+
+            <button class="btn btn-pa-dark w-100 mt-4" type="submit" [disabled]="busy()">
+              @if (busy()) {
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+              }
+              Crear agendador
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ============ Lista ============ -->
+      <div class="col-12 col-lg-5">
+        <div class="pa-card p-3">
+          <h2 class="pa-panel-title mb-3">Agendadores actuales</h2>
+
+          @if (loading()) {
+            <div class="text-center py-4">
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            </div>
+          } @else if (schedulers().length) {
+            <ul class="list-unstyled mb-0">
+              @for (u of schedulers(); track u.codUser) {
+                <li class="pa-person">
+                  <span class="pa-person-name">{{ fullName(u) }}</span>
+                  <span class="pa-person-meta">
+                    CC {{ u.cedUser }}
+                    @if (u.statusUser === 'Inactive') { · inactivo }
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="pa-muted small mb-0">Todavía no hay agendadores registrados.</p>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

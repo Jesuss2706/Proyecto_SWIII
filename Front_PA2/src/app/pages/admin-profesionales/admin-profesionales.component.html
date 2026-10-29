@@ -1,0 +1,191 @@
+<app-hero
+  variant="compact"
+  eyebrow="Administración"
+  subtitle="Crea la cuenta de acceso y el perfil de atención de cada profesional en un solo paso.">
+  Profesionales
+</app-hero>
+
+<section class="pa-section pt-4">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- ============ Formulario ============ -->
+      <div class="col-12 col-lg-8">
+        <div class="pa-card p-4 p-lg-5">
+          <h2 class="pa-panel-title mb-4">Nuevo profesional</h2>
+
+          @if (error()) {
+            <div class="alert alert-danger py-2 small" role="alert">{{ error() }}</div>
+          }
+          @if (success()) {
+            <div class="alert alert-success py-2 small" role="status">{{ success() }}</div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <p class="pa-fieldset-label">Datos personales</p>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-nombre">Primer nombre *</label>
+                <input id="p-nombre" class="form-control" formControlName="nameUser"
+                       [class.is-invalid]="invalid('nameUser')">
+                <div class="invalid-feedback">Campo obligatorio.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-apellido">Primer apellido *</label>
+                <input id="p-apellido" class="form-control" formControlName="lastNameUser"
+                       [class.is-invalid]="invalid('lastNameUser')">
+                <div class="invalid-feedback">Campo obligatorio.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-nombre2">Segundo nombre</label>
+                <input id="p-nombre2" class="form-control" formControlName="secondNameUser">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-apellido2">Segundo apellido</label>
+                <input id="p-apellido2" class="form-control" formControlName="secondLastNameUser">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="p-gen">Género *</label>
+                <select id="p-gen" class="form-select" formControlName="genProf"
+                        [class.is-invalid]="invalid('genProf')">
+                  <option value="">Selecciona</option>
+                  <option value="Femenino">Femenino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Otro">Otro</option>
+                </select>
+                <div class="invalid-feedback">Selecciona una opción.</div>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="p-tel">Teléfono</label>
+                <input id="p-tel" class="form-control" inputmode="tel" formControlName="phoneProf">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="p-foto">URL de la foto</label>
+                <input id="p-foto" class="form-control" formControlName="imageProf" placeholder="Opcional">
+              </div>
+            </div>
+
+            <p class="pa-fieldset-label">Cuenta de acceso</p>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-ced">Número de cédula *</label>
+                <input id="p-ced" class="form-control" inputmode="numeric" formControlName="cedUser"
+                       [class.is-invalid]="invalid('cedUser')">
+                <div class="invalid-feedback">Entre 6 y 12 dígitos.</div>
+                <div class="form-text">Será su usuario para iniciar sesión.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-email">Correo electrónico *</label>
+                <input id="p-email" type="email" class="form-control" autocomplete="off"
+                       formControlName="email" [class.is-invalid]="invalid('email')">
+                <div class="invalid-feedback">Escribe un correo válido.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-pass">Contraseña inicial *</label>
+                <input id="p-pass" class="form-control" autocomplete="off"
+                       formControlName="passUser" [class.is-invalid]="invalid('passUser')">
+                <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                <div class="form-text">Anótala: se la debes entregar a la persona.</div>
+              </div>
+            </div>
+
+            <p class="pa-fieldset-label">Perfil profesional</p>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-tipo">Tipo *</label>
+                <select id="p-tipo" class="form-select" formControlName="typeProf"
+                        [class.is-invalid]="invalid('typeProf')">
+                  <option value="">Selecciona</option>
+                  @for (t of types; track t.value) {
+                    <option [value]="t.value">{{ t.label }}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">Selecciona un tipo.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="p-esp">Especialidad *</label>
+                <select id="p-esp" class="form-select" formControlName="specialityProf"
+                        [class.is-invalid]="invalid('specialityProf')">
+                  <option value="">Selecciona</option>
+                  @for (s of specialities; track s.value) {
+                    <option [value]="s.value">{{ s.label }}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">Selecciona una especialidad.</div>
+              </div>
+            </div>
+
+            <p class="pa-fieldset-label">Agenda de atención</p>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+              @for (d of weekdays; track d.key) {
+                <button type="button" class="pa-day"
+                        [class.is-on]="workingDays().includes(d.key)"
+                        [attr.aria-pressed]="workingDays().includes(d.key)"
+                        (click)="toggleDay(d.key)">
+                  {{ d.label }}
+                </button>
+              }
+            </div>
+            @if (daysInvalid()) {
+              <p class="text-danger small">Elige al menos un día.</p>
+            }
+
+            <div class="row g-3 mt-1">
+              <div class="col-6 col-md-4">
+                <label class="form-label" for="p-in">Hora de entrada *</label>
+                <input id="p-in" type="time" class="form-control" formControlName="arrivalTime">
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label" for="p-out">Hora de salida *</label>
+                <input id="p-out" type="time" class="form-control" formControlName="departureTime">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="p-int">Duración de cada cita (min) *</label>
+                <input id="p-int" type="number" class="form-control" min="5" max="180" step="5"
+                       formControlName="attentionInterval" [class.is-invalid]="invalid('attentionInterval')">
+                <div class="invalid-feedback">Entre 5 y 180 minutos.</div>
+              </div>
+            </div>
+
+            <button class="btn btn-pa-dark w-100 mt-4" type="submit" [disabled]="busy()">
+              @if (busy()) {
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+              }
+              Crear profesional
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ============ Lista ============ -->
+      <div class="col-12 col-lg-4">
+        <div class="pa-card p-3">
+          <h2 class="pa-panel-title mb-3">Profesionales actuales</h2>
+
+          @if (loading()) {
+            <div class="text-center py-4">
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            </div>
+          } @else if (professionals().length) {
+            <ul class="list-unstyled mb-0">
+              @for (p of professionals(); track p.codProf) {
+                <li class="pa-person">
+                  <span class="pa-person-name">{{ name(p) }}</span>
+                  <span class="pa-person-meta">
+                    {{ specLabel(p) }}
+                    @if (p.user?.cedUser) { · CC {{ p.user?.cedUser }} }
+                    @if (p.statusProf === 'Inactive') { · inactivo }
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="pa-muted small mb-0">Todavía no hay profesionales registrados.</p>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

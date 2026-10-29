@@ -65,6 +65,37 @@ export interface RegisterRequest {
   lastNameUser: string;
   secondLastNameUser?: string;
 }
+
+export interface NewProfessionalRequest {
+  cedUser: number;
+  passUser: string;
+  email: string;
+  nameUser: string;
+  secondNameUser?: string;
+  lastNameUser: string;
+  secondLastNameUser?: string;
+  genProf: string;
+  phoneProf?: string;
+  typeProf: ProfType;
+  specialityProf: Speciality;
+  /** 'HH:mm:ss' */
+  arrivalTime: string;
+  departureTime: string;
+  attentionInterval: number;
+  /** 'MONDAY,SUNDAY' — días en los que NO atiende */
+  unavailableDays: string;
+  imageProf?: string;
+}
+
+export interface NewSchedulerRequest {
+  cedUser: number;
+  passUser: string;
+  email: string;
+  nameUser: string;
+  secondNameUser?: string;
+  lastNameUser: string;
+  secondLastNameUser?: string;
+}
 export interface Patient {
   codPatient: number;
   idPatient: number;

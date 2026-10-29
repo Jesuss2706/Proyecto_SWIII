@@ -14,6 +14,18 @@ async function register(req, res, next) {
   }
 }
 
+async function createScheduler(req, res, next) {
+  try {
+    const errors = required(req.body, ['cedUser', 'passUser', 'nameUser', 'lastNameUser', 'email']);
+    if (errors.length) throw new BadRequestError(errors.join(', '));
+
+    const user = await authService.createStaffUser({ ...req.body, role: 'Scheduler' });
+    res.status(201).json({ codUser: user.codUser });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function me(req, res, next) {
   try {
     res.json(await authService.syncFromToken(req.user));
@@ -77,4 +89,4 @@ async function deactivate(req, res, next) {
   }
 }
 
-module.exports = { register, me, findByRole, findByCedula, findByCodigo, update, deactivate };
+module.exports = { register, createScheduler, me, findByRole, findByCedula, findByCodigo, update, deactivate };

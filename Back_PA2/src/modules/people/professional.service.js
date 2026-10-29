@@ -1,5 +1,5 @@
 const Professional = require('./professional.model');
-const { User } = require('../auth');
+const { User, createStaffUser } = require('../auth');
 const { BadRequestError, NotFoundError } = require('../../shared/errors');
 
 // Nunca se debe exponer passUser, securityQuestion ni securityAnswer a través
@@ -42,6 +42,25 @@ async function register(dto) {
 
   // Releer con el include para no filtrar campos sensibles del User en la respuesta
   return Professional.findByPk(prof.codProf, { include: includeUser });
+}
+
+// Crea de una vez la cuenta (Keycloak + auth.users, rol Professional) y el perfil profesional.
+// El horario se valida ANTES de crear la cuenta para no dejar cuentas sueltas por un dato malo.
+async function registerWithAccount(dto) {
+  assertValidSchedule(dto.arrivalTime, dto.departureTime);
+
+  const user = await createStaffUser({
+    role: 'Professional',
+    cedUser: dto.cedUser,
+    passUser: dto.passUser,
+    email: dto.email,
+    nameUser: dto.nameUser,
+    secondNameUser: dto.secondNameUser,
+    lastNameUser: dto.lastNameUser,
+    secondLastNameUser: dto.secondLastNameUser,
+  });
+
+  return register({ ...dto, codUser: user.codUser });
 }
 
 async function findAll() {
@@ -92,6 +111,7 @@ async function deactivate(id) {
 
 module.exports = {
   register,
+  registerWithAccount,
   findAll,
   findByCodUser,
   findBySpeciality,

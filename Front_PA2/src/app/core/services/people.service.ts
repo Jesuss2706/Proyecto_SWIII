@@ -8,6 +8,7 @@ import {
   ProfessionalScheduleRequest,
   PublicProfessional,
   Speciality,
+  NewProfessionalRequest,
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -45,6 +46,11 @@ export class PeopleService {
 
   findProfessional(codProf: number) {
     return this.http.get<Professional>(`${this.base}/professionals/${codProf}`);
+  }
+
+  /** Admin: crea la cuenta (Keycloak) y el perfil de un profesional nuevo. */
+  createProfessionalWithAccount(payload: NewProfessionalRequest) {
+    return this.http.post<Professional>(`${this.base}/professionals/with-account`, payload);
   }
 
   /** Requisito 3: actualiza franja horaria, intervalo y días no disponibles. */

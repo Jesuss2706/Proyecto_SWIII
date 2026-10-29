@@ -1,4 +1,5 @@
 const User = require('./auth.model');
+const keycloakAdmin = require('./keycloak.admin');
 const { BadRequestError, UnauthorizedError, NotFoundError } = require('../../shared/errors');
 
 // Las consultas de solo lectura NUNCA deben incluir el hash de la contraseña
@@ -47,8 +48,6 @@ async function syncFromToken(claims) {
   };
 }
 
-const keycloakAdmin = require('./keycloak.admin');   // junto a los otros require
-
 async function findByRole(role) {
   return User.findAll({ where: { roleUser: role }, attributes: PUBLIC_ATTRS });
 }
@@ -83,9 +82,9 @@ async function deactivate(id) {
   await user.save();
 }
 
-// Registro público de pacientes: el formulario de Angular llama aquí y el backend
-// crea la cuenta en Keycloak (contraseña incluida) y la copia local en auth.users.
-async function register(dto) {
+// Crea la cuenta en Keycloak (contraseña incluida) y la copia local en auth.users.
+// Si `role` es Patient no se asigna a mano: lo pone Keycloak como rol por defecto del realm.
+async function createAccount(dto, role) {
   if (!/^\d{6,12}$/.test(String(dto.cedUser))) {
     throw new BadRequestError('La cédula debe tener entre 6 y 12 dígitos');
   }
@@ -96,33 +95,47 @@ async function register(dto) {
     throw new BadRequestError('Ya existe un usuario con esa cédula');
   }
 
-  // El rol Patient lo asigna Keycloak por ser rol por defecto del realm.
   await keycloakAdmin.createUser({
     username: String(dto.cedUser),
     email: dto.email,
     firstName: dto.nameUser,
     lastName: dto.lastNameUser,
     password: dto.passUser,
+    ...(role === 'Patient' ? {} : { role }),
   });
 
-  const user = await User.create({
+  return User.create({
     cedUser: dto.cedUser,
     nameUser: dto.nameUser,
     secondNameUser: dto.secondNameUser,
     lastNameUser: dto.lastNameUser,
     secondLastNameUser: dto.secondLastNameUser,
-    roleUser: 'Patient',
+    roleUser: role,
   });
-  return user;
+}
+
+// Registro público de pacientes: el formulario de Angular llama aquí.
+async function register(dto) {
+  return createAccount(dto, 'Patient');
+}
+
+// Cuentas de personal creadas por un administrador (Professional o Scheduler).
+const STAFF_ROLES = ['Professional', 'Scheduler'];
+
+async function createStaffUser(dto) {
+  if (!STAFF_ROLES.includes(dto.role)) {
+    throw new BadRequestError(`El rol debe ser uno de: ${STAFF_ROLES.join(', ')}`);
+  }
+  return createAccount(dto, dto.role);
 }
 
 module.exports = {
   syncFromToken,
   register,
+  createStaffUser,
   findByRole,
   findByCedula,
   findByCodigoUser,
   update,
   deactivate,
 };
-

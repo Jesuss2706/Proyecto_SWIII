@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, catchError, firstValueFrom, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, RegisterRequest, User, UserRole } from '../models';
+import { LoginRequest, NewSchedulerRequest, RegisterRequest, User, UserRole } from '../models';
 
 const TOKENS_KEY = 'pa_tokens';
 
@@ -84,6 +84,11 @@ export class AuthService {
   /** Crea la cuenta (el backend la registra en Keycloak). */
   registerAccount(payload: RegisterRequest) {
     return this.http.post<{ codUser: number }>(`${environment.apiUrl}/public/auth/register`, payload);
+  }
+
+  /** Admin: crea una cuenta de agendador (Scheduler) en Keycloak y en la base local. */
+  createScheduler(payload: NewSchedulerRequest) {
+    return this.http.post<{ codUser: number }>(`${this.base}/schedulers`, payload);
   }
 
   findByCedula(cedula: number) {

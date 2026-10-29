@@ -68,6 +68,27 @@ async function register(req, res, next) {
   }
 }
 
+async function registerWithAccount(req, res, next) {
+  try {
+    const errors = [
+      ...required(req.body, [
+        'cedUser', 'passUser', 'email', 'nameUser', 'lastNameUser',
+        'genProf', 'typeProf', 'specialityProf', 'arrivalTime', 'departureTime', 'attentionInterval',
+      ]),
+    ];
+    const typeError = oneOf(req.body.typeProf, TYPES, 'typeProf');
+    const specError = oneOf(req.body.specialityProf, SPECIALITIES, 'specialityProf');
+    if (typeError) errors.push(typeError);
+    if (specError) errors.push(specError);
+    if (errors.length) throw new BadRequestError(errors.join(', '));
+
+    const prof = await professionalService.registerWithAccount(req.body);
+    res.status(201).location(`/api/people/professionals/${prof.codProf}`).json(prof);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function update(req, res, next) {
   try {
     const prof = await professionalService.update(req.params.id, req.body);
@@ -86,4 +107,4 @@ async function deactivate(req, res, next) {
   }
 }
 
-module.exports = { findAll, findByCodUser, findBySpeciality, findByCodigo, register, update, deactivate };
+module.exports = { findAll, findByCodUser, findBySpeciality, findByCodigo, register, registerWithAccount, update, deactivate };

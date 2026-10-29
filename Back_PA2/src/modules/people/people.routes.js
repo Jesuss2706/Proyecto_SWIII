@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const patientController = require('./patient.controller');
 const professionalController = require('./professional.controller');
+const { requireRole } = require('../../shared/middlewares/auth.middleware');
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.get('/professionals', professionalController.findAll);
 router.get('/professionals/user/:codUser', professionalController.findByCodUser);
 router.get('/professionals/speciality/:speciality', professionalController.findBySpeciality);
 router.get('/professionals/:codigo', professionalController.findByCodigo);
+router.post('/professionals/with-account', requireRole('Admin'), professionalController.registerWithAccount);
 router.post('/professionals', professionalController.register);
 router.put('/professionals/:id', professionalController.update);
 router.delete('/professionals/:id', professionalController.deactivate);
