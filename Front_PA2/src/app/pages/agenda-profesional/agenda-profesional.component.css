@@ -51,3 +51,102 @@
 .pa-badge-completed   { background: #e2efe5; color: #245c36; }
 .pa-badge-cancelled   { background: #f6e3e3; color: #8a2f2f; }
 .pa-badge-rescheduled { background: var(--pa-gold-100); color: var(--pa-gold-600); }
+
+/* ---------- Pestañas ---------- */
+.pa-tabs {
+  display: inline-flex;
+  gap: .25rem;
+  padding: .25rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line);
+  border-radius: 999px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.pa-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  border: 0;
+  background: transparent;
+  color: var(--pa-muted);
+  font-size: .88rem;
+  font-weight: 600;
+  padding: .5rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: background-color 180ms ease, color 180ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pa-tab:active { transform: scale(.97); }
+.pa-tab.is-active { background: var(--pa-navy-900); color: #fff; }
+.pa-tab:focus-visible { outline: 2px solid var(--pa-gold); outline-offset: 2px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .pa-tab:not(.is-active):hover { color: var(--pa-navy-900); background: rgba(44, 84, 118, .08); }
+}
+
+.pa-panel { animation: pa-panel-in 200ms cubic-bezier(0.23, 1, 0.32, 1); }
+@keyframes pa-panel-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Búsqueda por cédula ---------- */
+.pa-search { position: relative; }
+.pa-search .form-control { padding-left: 2.25rem; font-variant-numeric: tabular-nums; }
+.pa-search-icon {
+  position: absolute;
+  left: .85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--pa-muted);
+  font-size: .85rem;
+  pointer-events: none;
+}
+
+/* ---------- Ficha del paciente ---------- */
+.pa-patient { display: flex; align-items: center; gap: 1rem; }
+
+.pa-patient-avatar {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--pa-gold-100);
+  color: var(--pa-gold-600);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pa-patient-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--pa-navy-900);
+  overflow-wrap: anywhere;
+}
+
+.pa-table-sub-plain { font-size: .82rem; color: var(--pa-muted); }
+.pa-cell-date { white-space: nowrap; }
+
+.pa-today-tag {
+  display: inline-block;
+  margin-left: .35rem;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--pa-gold-600);
+  background: var(--pa-gold-100);
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-panel { animation: none; }
+}

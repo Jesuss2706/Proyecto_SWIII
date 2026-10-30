@@ -178,6 +178,19 @@ export interface Appointment {
   statusApp: AppointmentStatus;
 }
 
+/** Cita del historial de un paciente, con los datos del profesional ya resueltos. */
+export interface HistoryAppointment extends Appointment {
+  professionalName: string;
+  specialityProf: Speciality | null;
+  typeProf: ProfType | null;
+}
+
+/** GET /appointments/patient/cedula/:idPatient */
+export interface PatientHistory {
+  patient: Pick<Patient, 'codPatient' | 'idPatient' | 'namePatient' | 'lastNamePatient' | 'phonePatient' | 'genderPatient'>;
+  appointments: HistoryAppointment[];
+}
+
 export interface AppointmentRequest {
   codProf: number;
   codPatient: number;

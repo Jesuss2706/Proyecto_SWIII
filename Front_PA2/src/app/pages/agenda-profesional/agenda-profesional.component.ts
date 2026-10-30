@@ -1,15 +1,20 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { HeroComponent } from '../../shared/hero/hero.component';
+import { DateFieldComponent } from '../../shared/date-field/date-field.component';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { PeopleService } from '../../core/services/people.service';
+import { AuthService } from '../../core/services/auth.service';
 import {
   Appointment,
   AppointmentStatus,
   Patient,
+  PatientHistory,
   Professional,
   SPECIALITY_LABELS,
   STATUS_LABELS,
+  Speciality,
   professionalFullName,
 } from '../../core/models';
 import { asList, byTimeAsc, formatDate, formatTime, todayISO } from '../../core/utils';
@@ -19,15 +24,23 @@ interface AppointmentRow extends Appointment {
   patientId: string;
 }
 
+type AgendaTab = 'day' | 'patient';
+
 @Component({
   selector: 'app-agenda-profesional',
-  imports: [FormsModule, HeroComponent],
+  imports: [FormsModule, HeroComponent, DateFieldComponent],
   templateUrl: './agenda-profesional.component.html',
   styleUrl: './agenda-profesional.component.css',
 })
 export class AgendaProfesionalComponent {
   private appointments = inject(AppointmentService);
   private people = inject(PeopleService);
+  private auth = inject(AuthService);
+
+  protected readonly tab = signal<AgendaTab>('day');
+
+  /** Perfil del profesional en sesión; null si quien entra es agendador o admin. */
+  protected readonly myProfessional = signal<Professional | null>(null);
 
   // ---- Filtros ----
   protected codProf = signal<number | null>(null);
@@ -63,11 +76,51 @@ export class AgendaProfesionalComponent {
     this.professionals().find((p) => p.codProf === this.codProf()) ?? null,
   );
 
+  // ---- Historial por paciente ----
+  protected cedula = signal('');
+  protected readonly history = signal<PatientHistory | null>(null);
+  protected readonly historyLoading = signal(false);
+  protected readonly historyError = signal<string | null>(null);
+  protected readonly historyStatus = signal<AppointmentStatus | 'all'>('all');
+
+  protected readonly visibleHistory = computed(() => {
+    const status = this.historyStatus();
+    const list = this.history()?.appointments ?? [];
+    return status === 'all' ? list : list.filter((a) => a.statusApp === status);
+  });
+
+  protected readonly historyCounts = computed(() => {
+    const all = this.history()?.appointments ?? [];
+    return {
+      total: all.length,
+      completed: all.filter((a) => a.statusApp === 'Completed').length,
+      cancelled: all.filter((a) => a.statusApp === 'Cancelled').length,
+      upcoming: all.filter((a) => a.statusApp === 'Scheduled').length,
+    };
+  });
+
   constructor() {
     this.people.listProfessionals().subscribe({
       next: (res) => this.professionals.set(asList(res).filter((p) => p.statusProf === 'Active')),
       error: () => this.error.set('No fue posible cargar la lista de profesionales.'),
     });
+
+    // Un profesional entra directo a su propia agenda de hoy, sin tocar filtros.
+    const user = this.auth.user();
+    if (user?.roleUser === 'Professional') {
+      this.loading.set(true);
+      this.people.findProfessionalByUser(user.codUser).subscribe({
+        next: (prof) => {
+          this.myProfessional.set(prof);
+          this.codProf.set(prof.codProf);
+          this.search();
+        },
+        error: () => {
+          this.loading.set(false);
+          this.error.set('No encontramos tu perfil de profesional. Elige uno de la lista para ver su agenda.');
+        },
+      });
+    }
   }
 
   search() {
@@ -98,7 +151,51 @@ export class AgendaProfesionalComponent {
     });
   }
 
+  searchHistory() {
+    const cedula = this.cedula().replace(/\D/g, '');
+    if (!/^\d{6,12}$/.test(cedula)) {
+      this.historyError.set('Escribe una cédula de 6 a 12 dígitos, sin puntos.');
+      return;
+    }
+
+    this.historyLoading.set(true);
+    this.historyError.set(null);
+    this.historyStatus.set('all');
+
+    this.appointments.findHistoryByPatientCedula(cedula).subscribe({
+      next: (res) => {
+        this.history.set(res);
+        this.historyLoading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.history.set(null);
+        this.historyLoading.set(false);
+        this.historyError.set(
+          err.status === 404
+            ? `No hay ningún paciente registrado con la cédula ${cedula}.`
+            : 'La búsqueda falló. Revisa la conexión con el servidor e inténtalo otra vez.',
+        );
+      },
+    });
+  }
+
+  clearHistory() {
+    this.cedula.set('');
+    this.history.set(null);
+    this.historyError.set(null);
+    this.historyStatus.set('all');
+  }
+
   clear() {
+    // El profesional en sesión vuelve a su propia agenda en lugar de quedar sin selección.
+    const mine = this.myProfessional();
+    if (mine) {
+      this.codProf.set(mine.codProf);
+      this.date.set(todayISO());
+      this.statusFilter.set('all');
+      this.search();
+      return;
+    }
     this.codProf.set(null);
     this.date.set(todayISO());
     this.statusFilter.set('all');
@@ -142,6 +239,22 @@ export class AgendaProfesionalComponent {
   protected label(p: Professional): string {
     const nombre = professionalFullName(p);
     return `${nombre || 'Profesional ' + p.codProf} — ${SPECIALITY_LABELS[p.specialityProf]}`;
+  }
+
+  protected specLabel(s: Speciality | null): string {
+    return s ? SPECIALITY_LABELS[s] : '—';
+  }
+
+  /** '2026-03-14' -> '14 mar 2026': el historial cruza años, así que el año sí importa. */
+  protected historyDate(date: string): string {
+    const [y, m, d] = date.split('-').map(Number);
+    return new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
+      .format(new Date(y, m - 1, d))
+      .replace('.', '');
+  }
+
+  protected isToday(date: string): boolean {
+    return date === todayISO();
   }
 
   protected statusLabel = (s: AppointmentStatus) => STATUS_LABELS[s];

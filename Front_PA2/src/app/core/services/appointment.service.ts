@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Appointment, AppointmentRequest, AppointmentStatus, Slot, Speciality } from '../models';
+import { Appointment, AppointmentRequest, AppointmentStatus, PatientHistory, Slot, Speciality } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentService {
@@ -22,6 +22,11 @@ export class AppointmentService {
 
   findByPatient(codPatient: number) {
     return this.http.get<Appointment[]>(`${this.base}/patient/${codPatient}`);
+  }
+
+  /** Historial completo de un paciente a partir de su cédula (solo personal de la clínica). */
+  findHistoryByPatientCedula(idPatient: string) {
+    return this.http.get<PatientHistory>(`${this.base}/patient/cedula/${idPatient}`);
   }
 
   findByStatus(status: AppointmentStatus) {

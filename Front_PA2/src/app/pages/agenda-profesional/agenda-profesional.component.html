@@ -1,12 +1,33 @@
 <app-hero
   variant="compact"
   eyebrow="Agendamiento"
-  subtitle="Elige un profesional y una fecha para ver su agenda del día.">
-  Citas por profesional
+  [subtitle]="myProfessional()
+    ? 'Tu agenda de hoy aparece primero. Usa los filtros para ver otra fecha o consulta el historial de un paciente.'
+    : 'Consulta la agenda del día de un profesional o el historial de citas de un paciente.'">
+  @if (myProfessional()) { Mi agenda } @else { Citas por profesional }
 </app-hero>
 
 <section class="pa-section pt-4">
   <div class="container">
+
+    <!-- ============ Pestañas ============ -->
+    <div class="pa-tabs mb-4" role="tablist" aria-label="Tipo de consulta">
+      <button type="button" class="pa-tab" role="tab" id="tab-day"
+              [class.is-active]="tab() === 'day'" [attr.aria-selected]="tab() === 'day'"
+              aria-controls="panel-day" (click)="tab.set('day')">
+        <i class="bi bi-calendar-day" aria-hidden="true"></i>
+        Agenda del día
+      </button>
+      <button type="button" class="pa-tab" role="tab" id="tab-patient"
+              [class.is-active]="tab() === 'patient'" [attr.aria-selected]="tab() === 'patient'"
+              aria-controls="panel-patient" (click)="tab.set('patient')">
+        <i class="bi bi-person-vcard" aria-hidden="true"></i>
+        Historial por paciente
+      </button>
+    </div>
+
+    @if (tab() === 'day') {
+    <div id="panel-day" role="tabpanel" aria-labelledby="tab-day" class="pa-panel">
 
     <!-- ============ Filtros ============ -->
     <form class="pa-card p-3 p-lg-4 mb-4" (ngSubmit)="search()">
@@ -18,18 +39,20 @@
                   [ngModel]="codProf()" (ngModelChange)="codProf.set($event)" name="codProf" required>
             <option [ngValue]="null" disabled>Selecciona un profesional</option>
             @for (p of professionals(); track p.codProf) {
-              <option [ngValue]="p.codProf">{{ label(p) }}</option>
+              <option [ngValue]="p.codProf">
+                {{ label(p) }}@if (p.codProf === myProfessional()?.codProf) { (tú)}
+              </option>
             }
           </select>
         </div>
 
-        <div class="col-6 col-lg-3">
+        <div class="col-12 col-sm-6 col-lg-3">
           <label class="form-label" for="f-date">Fecha</label>
-          <input id="f-date" type="date" class="form-control"
-                 [ngModel]="date()" (ngModelChange)="date.set($event)" name="date" required>
+          <app-date-field inputId="f-date"
+                          [ngModel]="date()" (ngModelChange)="date.set($event)" name="date" />
         </div>
 
-        <div class="col-6 col-lg-2">
+        <div class="col-12 col-sm-6 col-lg-2">
           <label class="form-label" for="f-status">Estado</label>
           <select id="f-status" class="form-select"
                   [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" name="status">
@@ -53,7 +76,7 @@
 
       <div class="d-flex justify-content-end mt-3">
         <button class="btn btn-link btn-sm pa-muted text-decoration-none p-0" type="button" (click)="clear()">
-          Limpiar filtros
+          @if (myProfessional()) { Volver a mi agenda de hoy } @else { Limpiar filtros }
         </button>
       </div>
     </form>
@@ -160,6 +183,11 @@
         }
       </div>
 
+    } @else if (loading()) {
+      <div class="pa-card p-5 text-center">
+        <span class="spinner-border" aria-hidden="true"></span>
+        <p class="pa-muted small mt-3 mb-0">Cargando tu agenda de hoy…</p>
+      </div>
     } @else {
       <div class="pa-card p-5 text-center">
         <p class="mb-1 fw-semibold">Empieza por elegir un profesional</p>
@@ -167,6 +195,162 @@
           El listado y el conteo de citas aparecerán aquí después de la búsqueda.
         </p>
       </div>
+    }
+
+    </div>
+    }
+
+    @if (tab() === 'patient') {
+    <div id="panel-patient" role="tabpanel" aria-labelledby="tab-patient" class="pa-panel">
+
+      <form class="pa-card p-3 p-lg-4 mb-4" (ngSubmit)="searchHistory()">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-6 col-lg-5">
+            <label class="form-label" for="h-ced">Cédula del paciente</label>
+            <div class="pa-search">
+              <i class="bi bi-search pa-search-icon" aria-hidden="true"></i>
+              <input id="h-ced" class="form-control" inputmode="numeric" autocomplete="off"
+                     placeholder="Ej. 1000000009"
+                     [ngModel]="cedula()" (ngModelChange)="cedula.set($event)" name="cedula"
+                     [class.is-invalid]="!!historyError() && !history()">
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label" for="h-status">Estado</label>
+            <select id="h-status" class="form-select" [disabled]="!history()"
+                    [ngModel]="historyStatus()" (ngModelChange)="historyStatus.set($event)" name="hstatus">
+              <option value="all">Todos</option>
+              <option value="Scheduled">Agendada</option>
+              <option value="Completed">Atendida</option>
+              <option value="Cancelled">Cancelada</option>
+              <option value="Rescheduled">Reagendada</option>
+            </select>
+          </div>
+
+          <div class="col-6 col-md-3 col-lg-2">
+            <button class="btn btn-pa-dark w-100" type="submit" [disabled]="historyLoading()">
+              @if (historyLoading()) {
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+              }
+              Consultar
+            </button>
+          </div>
+        </div>
+
+        @if (history()) {
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-link btn-sm pa-muted text-decoration-none p-0" type="button" (click)="clearHistory()">
+              Nueva consulta
+            </button>
+          </div>
+        }
+      </form>
+
+      @if (historyError()) {
+        <div class="alert alert-warning" role="alert">{{ historyError() }}</div>
+      }
+
+      @if (history(); as h) {
+        <div class="pa-card p-3 p-lg-4 mb-4 pa-patient">
+          <div class="pa-patient-avatar" aria-hidden="true">
+            {{ h.patient.namePatient.charAt(0) }}{{ h.patient.lastNamePatient.charAt(0) }}
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <h2 class="pa-patient-name mb-1">{{ h.patient.namePatient }} {{ h.patient.lastNamePatient }}</h2>
+            <p class="pa-muted small mb-0">
+              C.C. {{ h.patient.idPatient }}
+              @if (h.patient.phonePatient) { · {{ h.patient.phonePatient }} }
+              @if (h.patient.genderPatient) { · {{ h.patient.genderPatient }} }
+            </p>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="pa-metric">
+              <span class="pa-metric-value">{{ historyCounts().total }}</span>
+              <span class="pa-metric-label">Citas en total</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="pa-metric">
+              <span class="pa-metric-value">{{ historyCounts().upcoming }}</span>
+              <span class="pa-metric-label">Agendadas</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="pa-metric">
+              <span class="pa-metric-value">{{ historyCounts().completed }}</span>
+              <span class="pa-metric-label">Atendidas</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="pa-metric">
+              <span class="pa-metric-value">{{ historyCounts().cancelled }}</span>
+              <span class="pa-metric-label">Canceladas</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pa-card overflow-hidden">
+          <div class="p-3 border-bottom">
+            <h2 class="pa-table-title mb-0">Historial de citas</h2>
+            <p class="pa-table-sub-plain mb-0">De la más reciente a la más antigua</p>
+          </div>
+
+          @if (visibleHistory().length) {
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 pa-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Hora</th>
+                    <th scope="col">Profesional</th>
+                    <th scope="col" class="d-none d-md-table-cell">Especialidad</th>
+                    <th scope="col" class="d-none d-lg-table-cell">Motivo</th>
+                    <th scope="col">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of visibleHistory(); track a.codApp) {
+                    <tr>
+                      <td class="pa-cell-date">
+                        {{ historyDate(a.dateApp) }}
+                        @if (isToday(a.dateApp)) { <span class="pa-today-tag">Hoy</span> }
+                      </td>
+                      <td class="pa-cell-time">{{ time(a.timeApp) }}</td>
+                      <td>{{ a.professionalName || '—' }}</td>
+                      <td class="d-none d-md-table-cell pa-muted">{{ specLabel(a.specialityProf) }}</td>
+                      <td class="d-none d-lg-table-cell pa-muted pa-cell-desc">{{ a.descApp || '—' }}</td>
+                      <td><span [class]="badgeClass(a.statusApp)">{{ statusLabel(a.statusApp) }}</span></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="p-5 text-center">
+              @if (historyCounts().total) {
+                <p class="mb-1 fw-semibold">Ninguna cita con ese estado</p>
+                <p class="pa-muted small mb-0">Cambia el filtro de estado para ver el resto del historial.</p>
+              } @else {
+                <p class="mb-1 fw-semibold">Este paciente todavía no tiene citas</p>
+                <p class="pa-muted small mb-0">Cuando agende su primera cita aparecerá aquí.</p>
+              }
+            </div>
+          }
+        </div>
+      } @else if (!historyError()) {
+        <div class="pa-card p-5 text-center">
+          <p class="mb-1 fw-semibold">Busca a un paciente por su cédula</p>
+          <p class="pa-muted small mb-0">
+            Verás todas las citas que ha tenido en la clínica, con quién y en qué estado quedaron.
+          </p>
+        </div>
+      }
+
+    </div>
     }
 
   </div>
