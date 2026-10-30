@@ -1,0 +1,24 @@
+<button type="button" class="form-control pa-datefield-trigger"
+        [id]="inputId"
+        [class.is-open]="open()"
+        [class.is-empty]="!value()"
+        [disabled]="disabled()"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="open()"
+        (click)="toggle()">
+  <i class="bi bi-calendar3 pa-datefield-icon" aria-hidden="true"></i>
+  <span class="pa-datefield-text">{{ value() ? label(value()!) : placeholder }}</span>
+  <i class="bi bi-chevron-down pa-datefield-caret" aria-hidden="true"></i>
+</button>
+
+@if (open()) {
+  <div class="pa-datefield-pop" role="dialog" aria-label="Calendario" [class.is-right]="alignRight()">
+    <app-calendar-picker
+      [selected]="value()"
+      [min]="min"
+      [max]="max"
+      [blockWeekends]="blockWeekends"
+      [startView]="startView"
+      (dateChange)="pick($event)" />
+  </div>
+}

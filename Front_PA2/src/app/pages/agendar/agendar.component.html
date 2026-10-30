@@ -137,8 +137,10 @@
 
               <div class="col-8 col-md-4">
                 <label class="form-label" for="p-fnac">Fecha de nacimiento *</label>
-                <input id="p-fnac" type="date" class="form-control" formControlName="dateBirthPatient"
-                      [class.is-invalid]="invalid('dateBirthPatient')" [max]="minDate">
+                <app-date-field inputId="p-fnac" formControlName="dateBirthPatient"
+                                [class.is-invalid]="invalid('dateBirthPatient')"
+                                [min]="birthMin" [max]="birthMax" startView="years"
+                                placeholder="Día, mes y año" />
 
                 @if (patientForm.get('dateBirthPatient')?.errors?.['required']) {
                   <div class="invalid-feedback">Indica tu fecha de nacimiento.</div>

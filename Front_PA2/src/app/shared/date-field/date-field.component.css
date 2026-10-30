@@ -1,0 +1,67 @@
+:host {
+  display: block;
+  position: relative;
+}
+
+.pa-datefield-trigger {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.pa-datefield-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pa-datefield-text::first-letter { text-transform: uppercase; }
+.pa-datefield-trigger.is-empty .pa-datefield-text { color: var(--pa-muted); }
+
+.pa-datefield-icon { color: var(--pa-navy-500); }
+
+.pa-datefield-caret {
+  font-size: .7rem;
+  color: var(--pa-muted);
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pa-datefield-trigger.is-open .pa-datefield-caret { transform: rotate(180deg); }
+
+/* El borde rojo de Bootstrap llega por la clase is-invalid que el formulario pone en el host. */
+:host(.is-invalid) .pa-datefield-trigger { border-color: var(--bs-form-invalid-border-color); }
+
+/* Popover: nace desde el campo (arriba a la izquierda), no desde el centro. */
+.pa-datefield-pop {
+  position: absolute;
+  top: calc(100% + .4rem);
+  left: 0;
+  z-index: 1050;
+  width: min(21rem, calc(100vw - 2rem));
+  transform-origin: top left;
+  animation: pa-datefield-in 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pa-datefield-pop.is-right {
+  left: auto;
+  right: 0;
+  transform-origin: top right;
+}
+
+.pa-datefield-pop ::ng-deep .pa-cal {
+  box-shadow: 0 12px 32px -8px rgba(19, 36, 52, .28), 0 2px 6px rgba(19, 36, 52, .06);
+}
+
+@keyframes pa-datefield-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-datefield-pop { animation: pa-datefield-fade 150ms ease; }
+  @keyframes pa-datefield-fade { from { opacity: 0; } to { opacity: 1; } }
+}

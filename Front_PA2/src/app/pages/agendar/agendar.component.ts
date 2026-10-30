@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { CalendarPickerComponent } from '../../shared/calendar-picker/calendar-picker.component';
+import { DateFieldComponent } from '../../shared/date-field/date-field.component';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { PeopleService } from '../../core/services/people.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -21,7 +22,7 @@ type Step = 1 | 2 | 3;
  */
 @Component({
   selector: 'app-agendar',
-  imports: [ReactiveFormsModule, RouterLink, HeroComponent, CalendarPickerComponent],
+  imports: [ReactiveFormsModule, RouterLink, HeroComponent, CalendarPickerComponent, DateFieldComponent],
   templateUrl: './agendar.component.html',
   styleUrl: './agendar.component.css',
 })
@@ -58,6 +59,13 @@ export class AgendarComponent {
 
   /** La edad se deriva de la fecha de nacimiento, no se pide aparte. */
   protected readonly age = signal<number | null>(null);
+
+  /** Rango del calendario de nacimiento: solo fechas de personas mayores de edad. */
+  protected readonly birthMin = '1900-01-01';
+  protected readonly birthMax = (() => {
+    const [y, m, d] = todayISO().split('-');
+    return `${Number(y) - 18}-${m}-${d}`;
+  })();
 
   // ---------- Paso 3: horario ----------
    protected readonly specialities: Speciality[] = ['General', 'Neural_Therapy', 'Chiropractor', 'Physiotherapy'];
