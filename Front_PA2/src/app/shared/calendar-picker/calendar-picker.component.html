@@ -1,40 +1,118 @@
-<div class="pa-calendar">
-  <div class="pa-calendar-head">
-    <button type="button" class="pa-calendar-nav" (click)="prevMonth()" [disabled]="!canGoPrev()"
-            aria-label="Mes anterior">
-      <i class="bi bi-chevron-left"></i>
-    </button>
-    <span class="pa-calendar-label">{{ monthLabel() }}</span>
-    <button type="button" class="pa-calendar-nav" (click)="nextMonth()" [disabled]="!canGoNext()"
-            aria-label="Mes siguiente">
-      <i class="bi bi-chevron-right"></i>
-    </button>
-  </div>
-
-  <div class="pa-calendar-weekdays" aria-hidden="true">
-    @for (w of weekdayLabels; track w) {
-      <span>{{ w }}</span>
-    }
-  </div>
-
-  <div class="pa-calendar-grid" role="grid">
-    @for (week of weeks(); track $index) {
-      @for (cell of week; track cell?.dateStr ?? $index) {
-        @if (cell) {
-          <button type="button" class="pa-calendar-day"
-                  [class.is-selected]="cell.dateStr === selected"
-                  [class.is-today]="cell.isToday"
-                  [class.is-weekend]="cell.isWeekend"
-                  [disabled]="cell.disabled"
-                  [attr.aria-pressed]="cell.dateStr === selected"
-                  [attr.aria-label]="cell.dateStr"
-                  (click)="select(cell)">
-            {{ cell.day }}
-          </button>
-        } @else {
-          <span class="pa-calendar-day pa-calendar-day--empty" aria-hidden="true"></span>
-        }
+<div class="pa-cal">
+  <div class="pa-cal-head">
+    @switch (view()) {
+      @case ('days') {
+        <button type="button" class="pa-cal-title" (click)="openView('months')"
+                aria-label="Elegir mes y año">
+          <span class="pa-cal-month">{{ monthName() }}</span>
+          <span class="pa-cal-year">{{ viewYear() }}</span>
+          <i class="bi bi-chevron-down pa-cal-caret" aria-hidden="true"></i>
+        </button>
+      }
+      @case ('months') {
+        <button type="button" class="pa-cal-title" (click)="openView('years')" aria-label="Elegir año">
+          <span class="pa-cal-month">{{ viewYear() }}</span>
+          <i class="bi bi-chevron-down pa-cal-caret" aria-hidden="true"></i>
+        </button>
+      }
+      @case ('years') {
+        <span class="pa-cal-title pa-cal-title--static">
+          <span class="pa-cal-month">{{ yearRangeLabel() }}</span>
+        </span>
       }
     }
+
+    <div class="pa-cal-navs">
+      <button type="button" class="pa-cal-nav" (click)="prev()" [disabled]="!canGoPrev()"
+              aria-label="Anterior">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="pa-cal-nav" (click)="next()" [disabled]="!canGoNext()"
+              aria-label="Siguiente">
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
   </div>
+
+  @switch (view()) {
+    @case ('days') {
+      <div class="pa-cal-weekdays" aria-hidden="true">
+        @for (w of weekdayLabels; track w) {
+          <span>{{ w }}</span>
+        }
+      </div>
+
+      <!-- El @for sobre la clave del mes recrea la grilla en cada cambio y dispara la animación de entrada. -->
+      @for (key of [monthKey()]; track key) {
+        <div class="pa-cal-grid" role="group" [attr.data-slide]="slideDir()"
+             [attr.aria-label]="monthName() + ' ' + viewYear()"
+             (keydown)="onGridKeydown($event)">
+          @for (cell of days(); track cell.dateStr) {
+            <button type="button" class="pa-cal-day"
+                    [attr.data-date]="cell.dateStr"
+                    [class.is-selected]="cell.dateStr === selected"
+                    [class.is-today]="cell.isToday"
+                    [class.is-weekend]="cell.isWeekend"
+                    [class.is-outside]="cell.outside"
+                    [class.is-disabled]="cell.disabled"
+                    [attr.aria-disabled]="cell.disabled || null"
+                    [attr.aria-pressed]="cell.dateStr === selected"
+                    [attr.aria-label]="ariaLabel(cell)"
+                    [tabIndex]="tabIndexFor(cell)"
+                    (click)="select(cell)">
+              {{ cell.day }}
+            </button>
+          }
+        </div>
+      }
+    }
+
+    @case ('months') {
+      @for (key of [viewYear()]; track key) {
+        <div class="pa-cal-picks" [attr.data-slide]="slideDir()">
+          @for (m of monthCells(); track m.value) {
+            <button type="button" class="pa-cal-pick"
+                    [class.is-selected]="m.value === viewMonth()"
+                    [class.is-current]="m.isCurrent"
+                    [disabled]="m.disabled"
+                    [attr.aria-label]="monthNames[m.value] + ' ' + viewYear()"
+                    (click)="pickMonth(m)">
+              {{ m.label }}
+            </button>
+          }
+        </div>
+      }
+    }
+
+    @case ('years') {
+      @for (key of [yearPageStart()]; track key) {
+        <div class="pa-cal-picks" [attr.data-slide]="slideDir()">
+          @for (y of yearCells(); track y.value) {
+            <button type="button" class="pa-cal-pick"
+                    [class.is-selected]="y.value === viewYear()"
+                    [class.is-current]="y.isCurrent"
+                    [disabled]="y.disabled"
+                    (click)="pickYear(y)">
+              {{ y.label }}
+            </button>
+          }
+        </div>
+      }
+    }
+  }
+
+  @if (showToday || selectedLabel()) {
+    <div class="pa-cal-foot">
+      <span class="pa-cal-picked" aria-live="polite">
+        @if (selectedLabel(); as label) {
+          {{ label }}
+        } @else {
+          Sin fecha elegida
+        }
+      </span>
+      @if (showToday && todaySelectable()) {
+        <button type="button" class="pa-cal-today" (click)="goToday()">Hoy</button>
+      }
+    </div>
+  }
 </div>
