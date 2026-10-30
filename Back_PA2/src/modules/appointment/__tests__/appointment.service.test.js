@@ -6,6 +6,8 @@ jest.mock('../appointment.model', () => ({
 }));
 jest.mock('../../people', () => ({
   getPatientByCod: jest.fn(),
+  getPatientByIdPatient: jest.fn(),
+  getProfessionalByCod: jest.fn(),
   getActiveProfessionalByCod: jest.fn(),
   getActiveProfessionalsBySpeciality: jest.fn(),
   getAllActiveProfessionals: jest.fn(),
@@ -312,5 +314,50 @@ describe('appointment.service.exportByIds', () => {
       'csv'
     );
     expect(result).toEqual({ content: 'contenido-csv', contentType: 'text/csv', extension: 'csv' });
+  });
+});
+
+describe('appointment.service.findHistoryByPatientCedula', () => {
+  it('lanza NotFoundError si no hay paciente con esa cédula', async () => {
+    people.getPatientByIdPatient.mockResolvedValue(null);
+
+    await expect(appointmentService.findHistoryByPatientCedula('1000000009')).rejects.toThrow(NotFoundError);
+  });
+
+  it('devuelve el paciente y sus citas ordenadas con los datos del profesional', async () => {
+    people.getPatientByIdPatient.mockResolvedValue({ codPatient: 5, idPatient: 1000000009 });
+    Appointment.findAll.mockResolvedValue([
+      { codApp: 2, codProf: 20, codPatient: 5, dateApp: '2026-04-01', timeApp: '10:00', statusApp: 'Scheduled' },
+      { codApp: 1, codProf: 20, codPatient: 5, dateApp: '2026-03-01', timeApp: '09:00', statusApp: 'Completed' },
+    ]);
+    people.getProfessionalByCod.mockResolvedValue({
+      nameProf: 'Laura',
+      lastNameProf: 'Gómez',
+      specialityProf: 'Neural_Therapy',
+      typeProf: 'Doctor',
+    });
+
+    const result = await appointmentService.findHistoryByPatientCedula('1000000009');
+
+    expect(Appointment.findAll).toHaveBeenCalledWith({
+      where: { codPatient: 5 },
+      order: [['dateApp', 'DESC'], ['timeApp', 'DESC']],
+    });
+    // Un solo profesional repetido: se consulta una vez.
+    expect(people.getProfessionalByCod).toHaveBeenCalledTimes(1);
+    expect(result.patient).toEqual({ codPatient: 5, idPatient: 1000000009 });
+    expect(result.appointments).toHaveLength(2);
+    expect(result.appointments[0]).toEqual(
+      expect.objectContaining({ codApp: 2, professionalName: 'Laura Gómez', specialityProf: 'Neural_Therapy' })
+    );
+  });
+
+  it('devuelve una lista vacía si el paciente no tiene citas', async () => {
+    people.getPatientByIdPatient.mockResolvedValue({ codPatient: 5, idPatient: 1000000009 });
+    Appointment.findAll.mockResolvedValue([]);
+
+    const result = await appointmentService.findHistoryByPatientCedula('1000000009');
+
+    expect(result.appointments).toEqual([]);
   });
 });

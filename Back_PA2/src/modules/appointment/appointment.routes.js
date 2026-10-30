@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const controller = require('./appointment.controller');
+const { requireRole } = require('../../shared/middlewares/auth.middleware');
 
 const router = Router();
 
@@ -11,6 +12,12 @@ router.get('/first-available/:speciality', controller.findFirstAvailable);
 router.get('/professional/speciality/:specialityProf', controller.findBySpecialityProf);
 router.get('/professional/:codProf/date/:date', controller.findByCodProfAndDate);
 router.get('/professional/:codProf', controller.findByCodProf);
+// Historial de un paciente por cédula: solo personal de la clínica.
+router.get(
+  '/patient/cedula/:idPatient',
+  requireRole('Professional', 'Scheduler', 'Admin'),
+  controller.findHistoryByPatientCedula
+);
 router.get('/patient/:codPatient', controller.findByCodPatient);
 router.get('/status/:status', controller.findByStatus);
 router.get('/date/:date', controller.findByDate);

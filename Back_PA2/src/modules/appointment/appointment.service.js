@@ -66,6 +66,44 @@ async function findByCodPatient(codPatient) {
   return Appointment.findAll({ where: { codPatient } });
 }
 
+/**
+ * Historial de citas de un paciente a partir de su cédula, de la más reciente
+ * a la más antigua, con el nombre y la especialidad del profesional.
+ */
+async function findHistoryByPatientCedula(idPatient) {
+  const patient = await people.getPatientByIdPatient(idPatient);
+  if (!patient) throw new NotFoundError(`No existe un paciente con cédula: ${idPatient}`);
+
+  const appointments = await Appointment.findAll({
+    where: { codPatient: patient.codPatient },
+    order: [['dateApp', 'DESC'], ['timeApp', 'DESC']],
+  });
+
+  const profCache = new Map();
+  for (const codProf of new Set(appointments.map((a) => a.codProf))) {
+    profCache.set(codProf, await people.getProfessionalByCod(codProf));
+  }
+
+  return {
+    patient,
+    appointments: appointments.map((a) => {
+      const prof = profCache.get(a.codProf);
+      return {
+        codApp: a.codApp,
+        codProf: a.codProf,
+        codPatient: a.codPatient,
+        dateApp: a.dateApp,
+        timeApp: a.timeApp,
+        descApp: a.descApp,
+        statusApp: a.statusApp,
+        professionalName: prof ? `${prof.nameProf} ${prof.lastNameProf}`.trim() : '',
+        specialityProf: prof ? prof.specialityProf : null,
+        typeProf: prof ? prof.typeProf : null,
+      };
+    }),
+  };
+}
+
 async function findByStatus(status) {
   return Appointment.findAll({ where: { statusApp: status } });
 }
@@ -222,6 +260,7 @@ module.exports = {
   findAll,
   findByCodProf,
   findByCodPatient,
+  findHistoryByPatientCedula,
   findByStatus,
   findByCodProfAndDate,
   findByDateApp,
