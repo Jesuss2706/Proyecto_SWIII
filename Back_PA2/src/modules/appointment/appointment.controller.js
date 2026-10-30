@@ -55,6 +55,18 @@ async function findByCodPatient(req, res, next) {
   }
 }
 
+async function findHistoryByPatientCedula(req, res, next) {
+  try {
+    const { idPatient } = req.params;
+    if (!/^\d{6,12}$/.test(idPatient)) {
+      throw new BadRequestError('La cédula debe tener entre 6 y 12 dígitos, sin puntos.');
+    }
+    res.json(await appointmentService.findHistoryByPatientCedula(idPatient));
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function findByStatus(req, res, next) {
   try {
     sendListOrNoContent(res, await appointmentService.findByStatus(req.params.status));
@@ -180,6 +192,7 @@ module.exports = {
   findById,
   findByCodProf,
   findByCodPatient,
+  findHistoryByPatientCedula,
   findByStatus,
   findByCodProfAndDate,
   findByDate,

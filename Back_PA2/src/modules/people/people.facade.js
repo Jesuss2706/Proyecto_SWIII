@@ -6,10 +6,7 @@ const { buildFullName } = require('./people.utils');
 const USER_PUBLIC_ATTRS = ['codUser', 'cedUser', 'nameUser', 'secondNameUser', 'lastNameUser', 'secondLastNameUser', 'statusUser', 'roleUser'];
 const includeUser = { association: 'user', attributes: USER_PUBLIC_ATTRS };
 
-async function getPatientByCod(codPatient) {
-  const patient = await Patient.findByPk(codPatient);
-  if (!patient) return null;
-
+function mapPatient(patient) {
   return {
     codPatient: patient.codPatient,
     idPatient: Number(patient.idPatient),
@@ -18,6 +15,17 @@ async function getPatientByCod(codPatient) {
     phonePatient: patient.phonePatient != null ? Number(patient.phonePatient) : null,
     genderPatient: patient.genderPatient,
   };
+}
+
+async function getPatientByCod(codPatient) {
+  const patient = await Patient.findByPk(codPatient);
+  return patient ? mapPatient(patient) : null;
+}
+
+// Búsqueda por cédula (idPatient), usada para el historial de citas de un paciente.
+async function getPatientByIdPatient(idPatient) {
+  const patient = await Patient.findOne({ where: { idPatient } });
+  return patient ? mapPatient(patient) : null;
 }
 
 function mapProfessional(prof) {
@@ -43,6 +51,12 @@ async function getActiveProfessionalByCod(codProf) {
   return mapProfessional(prof);
 }
 
+// Sin filtrar por estado: el historial debe mostrar citas con profesionales ya desactivados.
+async function getProfessionalByCod(codProf) {
+  const prof = await Professional.findByPk(codProf, { include: includeUser });
+  return prof ? mapProfessional(prof) : null;
+}
+
 async function getAllActiveProfessionals() {
   const list = await Professional.findAll({ where: { statusProf: 'Active' }, include: includeUser });
   return list.map(mapProfessional);
@@ -58,6 +72,8 @@ async function getActiveProfessionalsBySpeciality(speciality) {
 
 module.exports = {
   getPatientByCod,
+  getPatientByIdPatient,
+  getProfessionalByCod,
   getActiveProfessionalByCod,
   getAllActiveProfessionals,
   getActiveProfessionalsBySpeciality,
