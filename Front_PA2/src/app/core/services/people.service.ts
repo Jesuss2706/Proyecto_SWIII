@@ -44,6 +44,11 @@ export class PeopleService {
     return this.http.get<Professional[]>(`${this.base}/professionals/speciality/${speciality}`);
   }
 
+  /** Perfil profesional ligado a una cuenta de usuario (para el profesional en sesión). */
+  findProfessionalByUser(codUser: number) {
+    return this.http.get<Professional>(`${this.base}/professionals/user/${codUser}`);
+  }
+
   findProfessional(codProf: number) {
     return this.http.get<Professional>(`${this.base}/professionals/${codProf}`);
   }

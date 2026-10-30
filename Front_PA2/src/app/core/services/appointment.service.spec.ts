@@ -39,6 +39,19 @@ describe('AppointmentService', () => {
     req.flush([appointment]);
   });
 
+  it('findHistoryByPatientCedula hace GET al historial por cédula', () => {
+    const history = {
+      patient: { codPatient: 3, idPatient: 1000000009, namePatient: 'Valentina', lastNamePatient: 'Pérez', genderPatient: 'Femenino' },
+      appointments: [{ ...appointment, professionalName: 'Laura Gómez', specialityProf: 'Neural_Therapy' as const, typeProf: 'Doctor' as const }],
+    };
+
+    service.findHistoryByPatientCedula('1000000009').subscribe((res) => expect(res).toEqual(history));
+
+    const req = httpMock.expectOne(`${base}/patient/cedula/1000000009`);
+    expect(req.request.method).toBe('GET');
+    req.flush(history);
+  });
+
   it('create hace POST con el payload de la cita', () => {
     const payload = { codProf: 2, codPatient: 3, dateApp: '2026-03-16', timeApp: '09:00' };
 

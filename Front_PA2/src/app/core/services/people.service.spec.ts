@@ -73,6 +73,14 @@ describe('PeopleService', () => {
     req.flush({} as Professional);
   });
 
+  it('findProfessionalByUser hace GET al profesional ligado a la cuenta', () => {
+    service.findProfessionalByUser(1).subscribe();
+
+    const req = httpMock.expectOne(`${base}/professionals/user/1`);
+    expect(req.request.method).toBe('GET');
+    req.flush({} as Professional);
+  });
+
   it('listPublicActiveProfessionals hace GET a la ruta pública sin autenticación', () => {
     service.listPublicActiveProfessionals().subscribe();
 
