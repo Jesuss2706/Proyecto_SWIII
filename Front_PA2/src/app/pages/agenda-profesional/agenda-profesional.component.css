@@ -147,6 +147,8 @@
   vertical-align: middle;
 }
 
+.pa-export-label { font-size: .82rem; color: var(--pa-muted); white-space: nowrap; }
+
 @media (prefers-reduced-motion: reduce) {
   .pa-panel { animation: none; }
 }

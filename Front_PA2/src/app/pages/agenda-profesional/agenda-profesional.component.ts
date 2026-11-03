@@ -219,7 +219,31 @@ export class AgendaProfesionalComponent {
   }
 
   export(format: 'csv' | 'json' | 'html') {
-    const ids = this.visibleRows().map((r) => r.codApp);
+    this.download(
+      this.visibleRows().map((r) => r.codApp),
+      format,
+      `citas_${this.date()}`,
+      () => this.error.set('La exportación falló.'),
+    );
+  }
+
+  exportHistory(format: 'csv' | 'json' | 'html') {
+    const cedula = this.history()?.patient.idPatient ?? 'paciente';
+    this.download(
+      this.visibleHistory().map((a) => a.codApp),
+      format,
+      `historial_${cedula}`,
+      () => this.historyError.set('La exportación falló.'),
+    );
+  }
+
+  /** Pide el archivo al backend y lo descarga. Comparten la agenda del día y el historial. */
+  private download(
+    ids: number[],
+    format: 'csv' | 'json' | 'html',
+    fileName: string,
+    onError: () => void,
+  ) {
     if (!ids.length) return;
 
     this.appointments.exportByIds(ids, format).subscribe({
@@ -227,11 +251,11 @@ export class AgendaProfesionalComponent {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `citas_${this.date()}.${format}`;
+        link.download = `${fileName}.${format}`;
         link.click();
         URL.revokeObjectURL(url);
       },
-      error: () => this.error.set('La exportación falló.'),
+      error: onError,
     });
   }
 
