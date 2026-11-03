@@ -127,10 +127,13 @@
           </div>
 
           @if (visibleRows().length) {
-            <div class="btn-group btn-group-sm" role="group" aria-label="Exportar listado">
-              <button class="btn btn-pa-outline" type="button" (click)="export('csv')">CSV</button>
-              <button class="btn btn-pa-outline" type="button" (click)="export('json')">JSON</button>
-              <button class="btn btn-pa-outline" type="button" (click)="export('html')">HTML</button>
+            <div class="d-flex align-items-center gap-2">
+              <span class="pa-export-label">Exportar como:</span>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Exportar agenda del día">
+                <button class="btn btn-pa-outline" type="button" (click)="export('csv')">CSV</button>
+                <button class="btn btn-pa-outline" type="button" (click)="export('json')">JSON</button>
+                <button class="btn btn-pa-outline" type="button" (click)="export('html')">HTML</button>
+              </div>
             </div>
           }
         </div>
@@ -294,9 +297,22 @@
         </div>
 
         <div class="pa-card overflow-hidden">
-          <div class="p-3 border-bottom">
-            <h2 class="pa-table-title mb-0">Historial de citas</h2>
-            <p class="pa-table-sub-plain mb-0">De la más reciente a la más antigua</p>
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 p-3 border-bottom">
+            <div>
+              <h2 class="pa-table-title mb-0">Historial de citas</h2>
+              <p class="pa-table-sub-plain mb-0">De la más reciente a la más antigua</p>
+            </div>
+
+            @if (visibleHistory().length) {
+              <div class="d-flex align-items-center gap-2">
+                <span class="pa-export-label">Exportar como:</span>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Exportar historial del paciente">
+                  <button class="btn btn-pa-outline" type="button" (click)="exportHistory('csv')">CSV</button>
+                  <button class="btn btn-pa-outline" type="button" (click)="exportHistory('json')">JSON</button>
+                  <button class="btn btn-pa-outline" type="button" (click)="exportHistory('html')">HTML</button>
+                </div>
+              </div>
+            }
           </div>
 
           @if (visibleHistory().length) {
