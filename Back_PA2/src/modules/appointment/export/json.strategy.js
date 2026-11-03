@@ -1,7 +1,8 @@
 const { nullSafe, timestamp, resolveAlert } = require('./export.utils');
 
+// JSON.stringify escapa comillas, barras y también saltos de línea y otros caracteres de control.
 function jsonEscape(value) {
-  return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return JSON.stringify(String(value)).slice(1, -1);
 }
 
 function exportAppointments(appointments) {

@@ -1,5 +1,18 @@
 const { nullSafe, timestamp } = require('./export.utils');
 
+// Los textos de las citas los escriben los usuarios (descripción, nombres): se escapan
+// antes de meterlos en el HTML para que nadie pueda inyectar scripts en el reporte.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const safe = (value) => escapeHtml(nullSafe(value));
+
 function resolveHtmlColor(status) {
   switch (status) {
     case 'Cancelled':
@@ -19,9 +32,9 @@ function exportAppointments(appointments) {
       const bgColor = resolveHtmlColor(app.statusApp);
       const rowStyle = bgColor ? ` style="background-color: ${bgColor};"` : '';
       return `    <tr${rowStyle}>
-      <td>${app.codApp}</td><td>${nullSafe(app.patientName)}</td><td>${nullSafe(app.professionalName)}</td>
-      <td>${nullSafe(app.specialityProf)}</td><td>${nullSafe(app.typeProf)}</td><td>${app.dateApp}</td>
-      <td>${app.timeApp}</td><td>${nullSafe(app.statusApp)}</td><td>${nullSafe(app.descApp)}</td>
+      <td>${safe(app.codApp)}</td><td>${safe(app.patientName)}</td><td>${safe(app.professionalName)}</td>
+      <td>${safe(app.specialityProf)}</td><td>${safe(app.typeProf)}</td><td>${safe(app.dateApp)}</td>
+      <td>${safe(app.timeApp)}</td><td>${safe(app.statusApp)}</td><td>${safe(app.descApp)}</td>
     </tr>`;
     })
     .join('\n');
