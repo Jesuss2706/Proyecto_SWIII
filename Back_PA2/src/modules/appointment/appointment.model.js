@@ -32,6 +32,9 @@ const Appointment = sequelize.define(
       allowNull: false,
       defaultValue: 'Scheduled',
     },
+    // Justificación que deja quien cancela (obligatoria para el paciente).
+    cancelReason: DataTypes.STRING(500),
+    cancelledAt: DataTypes.DATE,
   },
   {
     tableName: 'appointments',

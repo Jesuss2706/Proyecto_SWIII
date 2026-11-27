@@ -176,7 +176,7 @@ async function updateStatus(req, res, next) {
 
 async function cancel(req, res, next) {
   try {
-    const cancelled = await appointmentService.cancel(req.params.id);
+    const cancelled = await appointmentService.cancel(req.params.id, req.user, req.body?.reason);
     if (!cancelled) {
       return res.status(404).json({ error: `No se encontró la cita con id: ${req.params.id}` });
     }

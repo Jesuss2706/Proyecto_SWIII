@@ -1,6 +1,7 @@
 const app = require('./app');
 const sequelize = require('./config/db');
 const env = require('./config/env');
+const { applySchemaUpdates } = require('./config/schema-updates');
 
 async function start() {
   try {
@@ -9,6 +10,7 @@ async function start() {
 
     // sync solo para desarrollo; en producción usar migraciones
     await sequelize.sync();
+    await applySchemaUpdates();
 
     app.listen(env.port, () => {
       console.log(`Back_PA2 corriendo en http://localhost:${env.port}`);

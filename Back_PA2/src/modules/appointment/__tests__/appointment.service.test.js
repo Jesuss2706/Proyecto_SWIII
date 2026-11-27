@@ -206,6 +206,76 @@ describe('appointment.service.cancel', () => {
     Appointment.findByPk.mockResolvedValue({ statusApp: 'Completed' });
     await expect(appointmentService.cancel(1)).rejects.toThrow(BadRequestError);
   });
+
+  it('lanza BadRequestError si la cita ya estaba cancelada', async () => {
+    Appointment.findByPk.mockResolvedValue({ statusApp: 'Cancelled' });
+    await expect(appointmentService.cancel(1)).rejects.toThrow('La cita ya está cancelada');
+  });
+
+  it('guarda el motivo opcional cuando cancela el personal', async () => {
+    const appointment = { statusApp: 'Scheduled', dateApp: '2026-11-27', save: jest.fn() };
+    Appointment.findByPk.mockResolvedValue(appointment);
+
+    await appointmentService.cancel(1, { role: 'Scheduler', sub: '1000000014' }, '  El profesional no asistirá  ');
+
+    expect(appointment.statusApp).toBe('Cancelled');
+    expect(appointment.cancelReason).toBe('El profesional no asistirá');
+    expect(appointment.cancelledAt).toBeInstanceOf(Date);
+  });
+});
+
+describe('appointment.service.cancel (paciente)', () => {
+  const paciente = { role: 'Patient', sub: '1000000009' };
+  const motivo = 'Tengo una cirugía programada ese día';
+  let appointment;
+
+  beforeEach(() => {
+    appointment = { statusApp: 'Scheduled', codPatient: 5, dateApp: '2026-11-30', save: jest.fn() };
+    Appointment.findByPk.mockResolvedValue(appointment);
+    people.getPatientByCod.mockResolvedValue({ codPatient: 5, idPatient: 1000000009 });
+    // Hoy es 26 de noviembre: la fecha mínima para cancelar es el 28.
+    dateUtils.todayStr.mockReturnValue('2026-11-26');
+    dateUtils.addDays.mockReturnValue('2026-11-28');
+    dateUtils.isBeforeDate.mockImplementation((a, b) => a < b);
+  });
+
+  it('cancela su propia cita con 2 o más días de anticipación y guarda el motivo', async () => {
+    const result = await appointmentService.cancel(1, paciente, motivo);
+
+    expect(result).toBe(true);
+    expect(dateUtils.addDays).toHaveBeenCalledWith('2026-11-26', 2);
+    expect(appointment.statusApp).toBe('Cancelled');
+    expect(appointment.cancelReason).toBe(motivo);
+  });
+
+  it('permite cancelar justo en el límite de 2 días', async () => {
+    appointment.dateApp = '2026-11-28';
+    await expect(appointmentService.cancel(1, paciente, motivo)).resolves.toBe(true);
+  });
+
+  it('rechaza la cancelación con menos de 2 días de anticipación', async () => {
+    appointment.dateApp = '2026-11-27';
+
+    await expect(appointmentService.cancel(1, paciente, motivo)).rejects.toThrow('al menos 2 días de anticipación');
+    expect(appointment.save).not.toHaveBeenCalled();
+  });
+
+  it('exige un motivo de al menos 10 caracteres', async () => {
+    await expect(appointmentService.cancel(1, paciente, '  corto ')).rejects.toThrow('mínimo 10 caracteres');
+    await expect(appointmentService.cancel(1, paciente, undefined)).rejects.toThrow(BadRequestError);
+    expect(appointment.save).not.toHaveBeenCalled();
+  });
+
+  it('rechaza un motivo de más de 500 caracteres', async () => {
+    await expect(appointmentService.cancel(1, paciente, 'x'.repeat(501))).rejects.toThrow('500 caracteres');
+  });
+
+  it('no deja cancelar la cita de otro paciente', async () => {
+    people.getPatientByCod.mockResolvedValue({ codPatient: 5, idPatient: 1000000010 });
+
+    await expect(appointmentService.cancel(1, paciente, motivo)).rejects.toThrow(ForbiddenError);
+    expect(appointment.save).not.toHaveBeenCalled();
+  });
 });
 
 describe('appointment.service.findBySpecialityProf', () => {

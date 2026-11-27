@@ -258,6 +258,19 @@ describe('appointment.controller.cancel', () => {
     expect(res.status).toHaveBeenCalledWith(204);
     expect(res.send).toHaveBeenCalled();
   });
+
+  it('pasa al servicio el usuario y el motivo del cuerpo', async () => {
+    appointmentService.cancel.mockResolvedValue(true);
+    const user = { role: 'Patient', sub: '1000000009' };
+
+    await controller.cancel(
+      mockReq({ params: { id: '1' }, body: { reason: 'Viaje de trabajo imprevisto' }, user }),
+      mockRes(),
+      jest.fn()
+    );
+
+    expect(appointmentService.cancel).toHaveBeenCalledWith('1', user, 'Viaje de trabajo imprevisto');
+  });
 });
 
 describe('appointment.controller.exportAppointments', () => {

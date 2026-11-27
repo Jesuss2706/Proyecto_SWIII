@@ -28,8 +28,10 @@ router.post('/', controller.create);
 router.get('/', controller.findAll);
 router.get('/:id', controller.findById);
 
-router.put('/:id/status', controller.updateStatus);
-router.put('/:id', controller.update);
+// Cambiar estado o reagendar es tarea del personal. El paciente cancela por DELETE,
+// donde se validan la anticipación mínima y el motivo.
+router.put('/:id/status', requireRole('Professional', 'Scheduler', 'Admin'), controller.updateStatus);
+router.put('/:id', requireRole('Professional', 'Scheduler', 'Admin'), controller.update);
 router.delete('/:id', controller.cancel);
 
 module.exports = router;

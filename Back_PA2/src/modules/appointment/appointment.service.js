@@ -7,6 +7,11 @@ const festivos = require('./festivos');
 const exportService = require('./export/export.service');
 const { BadRequestError, NotFoundError, ForbiddenError } = require('../../shared/errors');
 
+// Un paciente solo puede cancelar con esta anticipación mínima, y debe justificarlo.
+const MIN_CANCEL_DAYS = 2;
+const MIN_REASON_LENGTH = 10;
+const MAX_REASON_LENGTH = 500;
+
 function canReschedule(status) {
   return status !== 'Cancelled' && status !== 'Completed';
 }
@@ -96,6 +101,7 @@ async function findHistoryByPatientCedula(idPatient) {
         timeApp: a.timeApp,
         descApp: a.descApp,
         statusApp: a.statusApp,
+        cancelReason: a.cancelReason ?? null,
         professionalName: prof ? `${prof.nameProf} ${prof.lastNameProf}`.trim() : '',
         specialityProf: prof ? prof.specialityProf : null,
         typeProf: prof ? prof.typeProf : null,
@@ -143,6 +149,7 @@ async function update(id, dto) {
     if (dto.statusApp === 'Cancelled') {
       if (!canCancel(appointment.statusApp)) throw new BadRequestError('No se puede cancelar una cita completada');
       appointment.statusApp = 'Cancelled';
+      appointment.cancelledAt = new Date();
     } else if (dto.statusApp === 'Completed') {
       if (!canComplete(appointment.statusApp)) throw new BadRequestError('No se puede completar una cita cancelada');
       appointment.statusApp = 'Completed';
@@ -155,13 +162,45 @@ async function update(id, dto) {
   return appointment;
 }
 
-async function cancel(id) {
+/**
+ * Cancela una cita. El personal puede cancelar cualquier cita (el motivo es opcional).
+ * Un paciente solo puede cancelar sus propias citas, con al menos MIN_CANCEL_DAYS días
+ * de anticipación y dejando una justificación.
+ */
+async function cancel(id, requester, reason) {
   const appointment = await Appointment.findByPk(id);
   if (!appointment) return false;
+  if (appointment.statusApp === 'Cancelled') {
+    throw new BadRequestError('La cita ya está cancelada');
+  }
   if (!canCancel(appointment.statusApp)) {
     throw new BadRequestError('No se puede cancelar una cita completada');
   }
+
+  const motivo = typeof reason === 'string' ? reason.trim() : '';
+  if (motivo.length > MAX_REASON_LENGTH) {
+    throw new BadRequestError(`El motivo no puede superar ${MAX_REASON_LENGTH} caracteres.`);
+  }
+
+  if (requester && requester.role === 'Patient') {
+    const patient = await people.getPatientByCod(appointment.codPatient);
+    if (!patient || Number(patient.idPatient) !== Number(requester.sub)) {
+      throw new ForbiddenError('Solo puedes cancelar tus propias citas.');
+    }
+    const limite = dateUtils.addDays(dateUtils.todayStr(), MIN_CANCEL_DAYS);
+    if (dateUtils.isBeforeDate(appointment.dateApp, limite)) {
+      throw new BadRequestError(
+        `Solo puedes cancelar una cita con al menos ${MIN_CANCEL_DAYS} días de anticipación. Para esta cita comunícate con el centro médico.`
+      );
+    }
+    if (motivo.length < MIN_REASON_LENGTH) {
+      throw new BadRequestError(`Escribe el motivo de la cancelación (mínimo ${MIN_REASON_LENGTH} caracteres).`);
+    }
+  }
+
   appointment.statusApp = 'Cancelled';
+  appointment.cancelReason = motivo || null;
+  appointment.cancelledAt = new Date();
   await appointment.save();
   return true;
 }
