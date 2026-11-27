@@ -2,26 +2,33 @@
   font-family: "Newsreader", Georgia, serif;
   font-size: 1.05rem;
   color: var(--pa-navy-900);
-  text-transform: capitalize;
 }
+.pa-appt-date::first-letter { text-transform: uppercase; }
 
 .pa-appt-time { font-size: .85rem; color: var(--pa-gold-600); font-weight: 600; }
 
-/* confirmación de cancelacion de cita */
-.pa-modal-backdrop {
-  background: rgba(15, 23, 42, 0.55);
+.pa-appt-prof { font-weight: 600; color: var(--pa-navy-900); font-size: .92rem; }
+
+.pa-card.is-past { opacity: .85; }
+
+.pa-rule {
+  color: var(--pa-muted);
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line);
+  border-radius: .6rem;
+  padding: .6rem .85rem;
 }
 
-.pa-modal-content {
-  border: none;
-  border-radius: 0.75rem;
+/* Estados: mismas etiquetas de color que la agenda del personal */
+.pa-badge {
+  display: inline-block;
+  font-size: .74rem;
+  font-weight: 600;
+  padding: .22rem .6rem;
+  border-radius: 999px;
+  white-space: nowrap;
 }
-
-.pa-modal-title {
-  font-family: "Newsreader", Georgia, serif;
-  color: var(--pa-navy-900);
-}
-
-.pa-modal-body {
-  color: var(--pa-navy-900);
-}
+.pa-badge-scheduled   { background: #e4edf5; color: #1e3a52; }
+.pa-badge-completed   { background: #e2efe5; color: #245c36; }
+.pa-badge-cancelled   { background: #f6e3e3; color: #8a2f2f; }
+.pa-badge-rescheduled { background: var(--pa-gold-100); color: var(--pa-gold-600); }

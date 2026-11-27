@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { HeroComponent } from '../../shared/hero/hero.component';
 import { DateFieldComponent } from '../../shared/date-field/date-field.component';
+import { CancelDialogComponent } from '../../shared/cancel-dialog/cancel-dialog.component';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { PeopleService } from '../../core/services/people.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -28,7 +29,7 @@ type AgendaTab = 'day' | 'patient';
 
 @Component({
   selector: 'app-agenda-profesional',
-  imports: [FormsModule, HeroComponent, DateFieldComponent],
+  imports: [FormsModule, HeroComponent, DateFieldComponent, CancelDialogComponent],
   templateUrl: './agenda-profesional.component.html',
   styleUrl: './agenda-profesional.component.css',
 })
@@ -204,11 +205,40 @@ export class AgendaProfesionalComponent {
     this.error.set(null);
   }
 
+  // ---- Cancelación con confirmación (el motivo es opcional para el personal) ----
+  protected readonly rowToCancel = signal<AppointmentRow | null>(null);
+  protected readonly cancelling = signal(false);
+  protected readonly cancelError = signal<string | null>(null);
+
   cancelAppointment(row: AppointmentRow) {
-    this.appointments.updateStatus(row.codApp, 'CANCELADA').subscribe({
-      next: () => this.patchRow(row.codApp, 'Cancelled'),
-      error: () => this.error.set('No se pudo cancelar la cita. Inténtalo de nuevo.'),
+    this.cancelError.set(null);
+    this.rowToCancel.set(row);
+  }
+
+  closeCancel() {
+    if (!this.cancelling()) this.rowToCancel.set(null);
+  }
+
+  confirmCancel(reason: string) {
+    const row = this.rowToCancel();
+    if (!row) return;
+    this.cancelling.set(true);
+    this.cancelError.set(null);
+    this.appointments.cancel(row.codApp, reason).subscribe({
+      next: () => {
+        this.patchRow(row.codApp, 'Cancelled');
+        this.cancelling.set(false);
+        this.rowToCancel.set(null);
+      },
+      error: (err) => {
+        this.cancelling.set(false);
+        this.cancelError.set(err?.error?.error ?? 'No se pudo cancelar la cita. Inténtalo de nuevo.');
+      },
     });
+  }
+
+  protected cancelSummary(row: AppointmentRow): string {
+    return `${this.prettyDate(row.dateApp)} a las ${this.time(row.timeApp)} de ${row.patientName}`;
   }
 
   completeAppointment(row: AppointmentRow) {

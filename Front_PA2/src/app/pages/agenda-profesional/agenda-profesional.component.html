@@ -371,3 +371,13 @@
 
   </div>
 </section>
+
+@if (rowToCancel(); as row) {
+  <app-cancel-dialog
+    [summary]="cancelSummary(row)"
+    [requireReason]="false"
+    [busy]="cancelling()"
+    [error]="cancelError()"
+    (confirmed)="confirmCancel($event)"
+    (closed)="closeCancel()" />
+}

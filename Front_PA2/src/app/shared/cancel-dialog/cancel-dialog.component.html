@@ -1,0 +1,47 @@
+<div class="pa-dialog-backdrop" (click)="!busy && closed.emit()"></div>
+
+<form class="pa-dialog" role="dialog" aria-modal="true" aria-labelledby="cd-title" aria-describedby="cd-desc"
+      (submit)="$event.preventDefault(); submit()">
+  <div class="pa-dialog-head">
+    <h2 class="pa-dialog-title" id="cd-title">Cancelar cita</h2>
+    <button type="button" class="btn-close" aria-label="Cerrar" [disabled]="busy" (click)="closed.emit()"></button>
+  </div>
+
+  <p class="pa-dialog-text" id="cd-desc">
+    Vas a cancelar la cita del <strong>{{ summary }}</strong>, y el horario quedará libre para otro paciente.
+  </p>
+
+  <label class="form-label" for="cd-reason">
+    Motivo de la cancelación
+    @if (!requireReason) { <span class="pa-optional">(opcional)</span> }
+  </label>
+  <textarea #reasonField id="cd-reason" class="form-control" rows="3"
+            [attr.maxlength]="maxLength"
+            [class.is-invalid]="touched() && !valid()"
+            [attr.aria-invalid]="touched() && !valid()"
+            [placeholder]="requireReason ? 'Cuéntanos por qué no podrás asistir' : 'Por ejemplo: el paciente llamó para cancelar'"
+            [value]="reason()" (input)="reason.set($any($event.target).value)"
+            (blur)="touched.set(true)"></textarea>
+  <div class="pa-dialog-hint">
+    @if (touched() && !valid()) {
+      <span class="pa-dialog-error-text">Escribe al menos {{ minLength }} caracteres para explicar el motivo.</span>
+    } @else if (requireReason) {
+      <span>Mínimo {{ minLength }} caracteres.</span>
+    } @else {
+      <span>Queda registrado en el historial de la cita.</span>
+    }
+    <span class="pa-dialog-count" [class.is-ok]="valid()">{{ length() }}/{{ maxLength }}</span>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-danger py-2 px-3 small mt-3 mb-0" role="alert">{{ error }}</div>
+  }
+
+  <div class="pa-dialog-actions">
+    <button type="button" class="btn btn-pa-outline" [disabled]="busy" (click)="closed.emit()">No, volver</button>
+    <button type="submit" class="btn btn-pa-danger" [disabled]="busy">
+      @if (busy) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> }
+      Cancelar cita
+    </button>
+  </div>
+</form>

@@ -1,4 +1,4 @@
-<app-hero variant="compact" eyebrow="Pacientes" subtitle="Consulta, reagenda o cancela tus citas.">
+<app-hero variant="compact" eyebrow="Pacientes" subtitle="Consulta tus citas o cancela las que no podrás atender.">
   Mis citas
 </app-hero>
 
@@ -7,33 +7,56 @@
     <div class="row justify-content-center">
       <div class="col-12 col-lg-9">
 
+        @if (success()) {
+          <div class="alert alert-success d-flex align-items-start gap-2" role="status">
+            <i class="bi bi-check-circle-fill mt-1" aria-hidden="true"></i>
+            <span>{{ success() }}</span>
+          </div>
+        }
+
         @if (error()) {
           <div class="alert alert-info" role="status">{{ error() }}</div>
         }
 
+        @if (!loading() && rows().length) {
+          <p class="pa-rule small mb-3">
+            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+            Puedes cancelar una cita desde aquí hasta {{ minCancelDays }} días antes. Si falta menos, comunícate
+            al <strong>(602) 555 0192</strong>.
+          </p>
+        }
+
         @if (loading()) {
-          <div class="text-center py-5">
+          <div class="text-center py-5" role="status">
             <span class="spinner-border" aria-hidden="true"></span>
+            <p class="pa-muted small mt-3 mb-0">Cargando tus citas…</p>
           </div>
         } @else if (rows().length) {
           <ul class="list-unstyled mb-0">
-            @for (a of rows(); track a.codApp) {
-              <li class="pa-card p-3 p-lg-4 mb-3">
+            @for (a of sortedRows(); track a.codApp) {
+              <li class="pa-card p-3 p-lg-4 mb-3" [class.is-past]="a.statusApp !== 'Scheduled'">
                 <div class="row align-items-center g-3">
                   <div class="col-12 col-md-3">
                     <p class="pa-appt-date mb-0">{{ prettyDate(a.dateApp) }}</p>
                     <p class="pa-appt-time mb-0">{{ time(a.timeApp) }}</p>
                   </div>
                   <div class="col-12 col-md-5">
-                    <p class="pa-muted small mb-1">Cita #{{ a.codApp }}</p>
-                    <p class="mb-0 small">{{ a.descApp || 'Sin observaciones' }}</p>
+                    @if (professionalLabel(a); as prof) {
+                      <p class="pa-appt-prof mb-1">{{ prof }}</p>
+                    }
+                    <p class="mb-0 small pa-muted">{{ a.descApp || 'Sin observaciones' }}</p>
+                    @if (a.statusApp === 'Cancelled' && a.cancelReason) {
+                      <p class="mb-0 small mt-1"><span class="pa-muted">Motivo:</span> {{ a.cancelReason }}</p>
+                    }
                   </div>
                   <div class="col-6 col-md-2">
-                    <span class="pa-muted small">{{ statusLabel(a.statusApp) }}</span>
+                    <span [class]="badgeClass(a.statusApp)">{{ statusLabel(a.statusApp) }}</span>
                   </div>
                   <div class="col-6 col-md-2 text-end">
-                    @if (a.statusApp === 'Scheduled') {
+                    @if (canCancel(a)) {
                       <button class="btn btn-sm btn-pa-outline" type="button" (click)="askCancel(a)">Cancelar</button>
+                    } @else if (a.statusApp === 'Scheduled') {
+                      <span class="pa-muted small d-inline-block text-end">Ya no se puede cancelar en línea</span>
                     }
                   </div>
                 </div>
@@ -54,21 +77,11 @@
 </section>
 
 @if (appToCancel(); as app) {
-  <div class="modal d-block pa-modal-backdrop" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content pa-modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title pa-modal-title">Cancelar cita</h5>
-          <button type="button" class="btn-close" (click)="appToCancel.set(null)"></button>
-        </div>
-        <div class="modal-body pa-modal-body">
-          ¿Estás seguro de que quieres cancelar tu cita del {{ prettyDate(app.dateApp) }} a las {{ time(app.timeApp) }}?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-pa-outline" (click)="appToCancel.set(null)">No, volver</button>
-          <button type="button" class="btn btn-sm btn-pa" (click)="confirmCancel()">Sí, cancelar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-cancel-dialog
+    [summary]="summary(app)"
+    [requireReason]="true"
+    [busy]="cancelling()"
+    [error]="cancelError()"
+    (confirmed)="confirmCancel($event)"
+    (closed)="closeCancel()" />
 }

@@ -59,8 +59,9 @@ export class AppointmentService {
     return this.http.put<Appointment>(`${this.base}/${codApp}/status`, { statusApp });
   }
 
-  cancel(codApp: number) {
-    return this.http.delete<void>(`${this.base}/${codApp}`);
+  /** DELETE /appointments/:id con el motivo en el cuerpo (obligatorio para el paciente). */
+  cancel(codApp: number, reason?: string) {
+    return this.http.delete<void>(`${this.base}/${codApp}`, { body: { reason: reason ?? '' } });
   }
 
   /** POST /appointments/export?format=csv|json|html con el array de ids en el body. */

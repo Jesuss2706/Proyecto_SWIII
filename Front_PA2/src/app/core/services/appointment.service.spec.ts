@@ -86,6 +86,15 @@ describe('AppointmentService', () => {
 
     const req = httpMock.expectOne(`${base}/1`);
     expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toEqual({ reason: '' });
+    req.flush(null);
+  });
+
+  it('cancel envía el motivo en el cuerpo', () => {
+    service.cancel(7, 'Tengo una cirugía ese día').subscribe();
+
+    const req = httpMock.expectOne(`${base}/7`);
+    expect(req.request.body).toEqual({ reason: 'Tengo una cirugía ese día' });
     req.flush(null);
   });
 

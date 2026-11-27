@@ -307,10 +307,12 @@ export class AgendarComponent {
         },
         error: (err) => {
           this.busy.set(false);
+          // loadSlots() limpia el error al empezar: primero se recargan los horarios
+          // y después se muestra el mensaje, para que el usuario sí lo vea.
+          this.loadSlots();
           this.error.set(
             err?.error?.error ?? 'No se pudo agendar la cita. Es posible que esa franja acabe de ocuparse.',
           );
-          this.loadSlots();
         },
       });
   }

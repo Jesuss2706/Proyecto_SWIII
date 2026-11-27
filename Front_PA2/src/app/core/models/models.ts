@@ -176,6 +176,9 @@ export interface Appointment {
   timeApp: string;
   descApp?: string | null;
   statusApp: AppointmentStatus;
+  /** Justificación que dejó quien canceló la cita. */
+  cancelReason?: string | null;
+  cancelledAt?: string | null;
 }
 
 /** Cita del historial de un paciente, con los datos del profesional ya resueltos. */

@@ -1,0 +1,62 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.pa-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  animation: pa-fade 160ms ease-out;
+}
+
+.pa-dialog {
+  position: relative;
+  width: min(30rem, 100%);
+  background: var(--pa-surface);
+  border-radius: .9rem;
+  padding: 1.4rem 1.5rem 1.25rem;
+  box-shadow: 0 24px 48px -16px rgba(19, 36, 52, .45);
+  animation: pa-dialog-in 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pa-dialog-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+.pa-dialog-title { font-family: "Newsreader", Georgia, serif; font-size: 1.35rem; color: var(--pa-navy-900); margin: 0; }
+.pa-dialog-text { color: var(--pa-ink); font-size: .95rem; margin-bottom: 1rem; }
+
+.pa-dialog-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: .35rem;
+  font-size: .8rem;
+  color: var(--pa-muted);
+}
+.pa-dialog-error-text { color: var(--bs-form-invalid-color, #b42318); }
+.pa-dialog-count { font-variant-numeric: tabular-nums; }
+.pa-dialog-count.is-ok { color: var(--pa-navy-500); }
+
+.pa-dialog-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+.btn-pa-danger {
+  background: #8a2f2f;
+  border-color: #8a2f2f;
+  color: #fff;
+  transition: background-color 150ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.btn-pa-danger:hover:not(:disabled) { background: #732626; border-color: #732626; color: #fff; }
+.btn-pa-danger:active:not(:disabled) { transform: scale(.97); }
+
+@keyframes pa-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pa-dialog-in {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-dialog, .pa-dialog-backdrop { animation: none; }
+}
